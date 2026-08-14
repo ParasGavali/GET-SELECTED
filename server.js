@@ -1,5 +1,12 @@
 require('dotenv').config();
 
+if (!process.env.MONGODB_URI) {
+  console.error('[fatal] MONGODB_URI is not set.');
+  console.error('        Local: copy .env.example to .env and fill it in.');
+  console.error('        Render: add MONGODB_URI (and SESSION_SECRET, NODE_ENV=production) in the service Environment tab.');
+  process.exit(1);
+}
+
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
