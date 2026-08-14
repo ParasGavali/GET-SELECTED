@@ -1,0 +1,40 @@
+<section class="section-box" style="padding:16px;display:grid;gap:14px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)">
+  <div class="flex items-center justify-between">
+    <h3 style="font-size:15px">Section</h3>
+    <button type="button" class="btn btn-ghost btn-sm btn-danger-text remove-section"><i data-lucide="x" style="width:14px;height:14px"></i> Remove</button>
+  </div>
+  <div class="grid grid-3">
+    <div class="form-group" style="grid-column:span 2">
+      <label>Section name *</label>
+      <input type="text" name="section_name" class="form-control" required value="<%= sec.name %>">
+    </div>
+    <div class="form-group">
+      <label>Marks per question</label>
+      <input type="number" name="section_marks_<%= idx %>" class="form-control" value="<%= sec.marksPerQuestion || 1 %>" min="1" step="0.25">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Negative per question</label>
+    <input type="number" name="section_negative_<%= idx %>" class="form-control" value="<%= sec.negativePerQuestion || 0 %>" min="0" step="0.25">
+  </div>
+  <div class="question-picker">
+    <div class="form-group">
+      <label>Select questions (<%= sec.questions ? sec.questions.length : 0 %> selected)</label>
+      <input type="text" class="form-control qp-search" placeholder="Search by text, subject or topic...">
+      <div class="qp-list" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-top:8px">
+        <% var selectedIds = (sec.questions || []).map(function(q) { return String(q._id); }); %>
+        <% allQ.forEach(function(q) { %>
+          <label class="qp-item" data-search="<%= (q.text + ' ' + q.subject + ' ' + q.topic).toLowerCase() %>" style="display:flex;align-items:flex-start;gap:8px;padding:6px 8px;cursor:pointer;border-radius:6px">
+            <input type="checkbox" name="section_questions_<%= idx %>" value="<%= q.id %>" style="margin-top:3px" <%= selectedIds.indexOf(q.id) !== -1 ? 'checked' : '' %>>
+            <span style="font-size:13px">
+              <span class="muted"><%= q.type %> · <%= q.difficulty %></span>
+              <span style="display:block"><%= q.text.length > 90 ? q.text.slice(0, 90) + '...' : q.text %></span>
+              <span class="xs muted"><%= q.subject %><%= q.topic ? ' · ' + q.topic : '' %></span>
+            </span>
+          </label>
+        <% }) %>
+        <% if (!allQ.length) { %><p class="small muted" style="padding:8px">No questions yet. Create some first.</p><% } %>
+      </div>
+    </div>
+  </div>
+</section>

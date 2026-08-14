@@ -1,0 +1,36 @@
+<header class="navbar">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="/dashboard" class="navbar-brand">
+        <span class="brand-mark"><i data-lucide="trophy"></i></span>
+        <span><%= appName %></span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <nav class="navbar-links" data-nav-links>
+        <a href="/dashboard" class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>">Dashboard</a>
+        <a href="/practice" class="nav-link <%= currentPath.startsWith('/practice') ? 'active' : '' %>">Practice</a>
+        <a href="/tests" class="nav-link <%= currentPath.startsWith('/tests') ? 'active' : '' %>">Tests</a>
+        <a href="/companies" class="nav-link <%= currentPath.startsWith('/companies') ? 'active' : '' %>">Companies</a>
+        <a href="/coding" class="nav-link <%= currentPath.startsWith('/coding') ? 'active' : '' %>">Coding</a>
+        <a href="/daily" class="nav-link <%= currentPath === '/daily' ? 'active' : '' %>">Daily</a>
+        <a href="/leaderboard" class="nav-link <%= currentPath === '/leaderboard' ? 'active' : '' %>">Leaderboard</a>
+        <a href="/analytics" class="nav-link <%= currentPath === '/analytics' ? 'active' : '' %>">Analytics</a>
+        <a href="/ai-analysis" class="nav-link <%= currentPath === '/ai-analysis' ? 'active' : '' %>">AI Analysis</a>
+        <a href="/saved" class="nav-link <%= currentPath === '/saved' ? 'active' : '' %>">Saved</a>
+      </nav>
+      <div class="navbar-actions">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/profile" class="flex items-center gap-2 nav-link">
+            <span class="avatar" style="background:<%= user.avatarColor || '#4f46e5' %>"><%= user.name.charAt(0).toUpperCase() %></span>
+            <span style="display:none" class="d-name"><%= user.name.split(' ')[0] %></span>
+          </a>
+          <form action="/logout" method="POST">
+            <button type="submit" class="btn btn-ghost btn-sm"><i data-lucide="log-out" style="width:15px;height:15px"></i><span class="hide-mobile">Logout</span></button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</header>

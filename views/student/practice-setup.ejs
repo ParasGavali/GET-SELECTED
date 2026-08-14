@@ -1,0 +1,108 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Practice</h1>
+      <p>Choose what to practice. There are <%= totalQuestions %> questions available - everything is free.</p>
+    </div>
+
+    <form action="/practice/session" method="GET" class="card" style="margin-bottom:24px">
+      <div class="filter-bar">
+        <div class="form-group">
+          <label>Subject</label>
+          <select name="subject" class="form-control" id="subjectSelect">
+            <option value="">All Subjects</option>
+            <% subjects.forEach(function(s) { %>
+              <option value="<%= s.slug %>" <%= selectedSubject === s.slug ? 'selected' : '' %>><%= s.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Topic</label>
+          <select name="topic" class="form-control" id="topicSelect">
+            <option value="">All Topics</option>
+            <% topics.forEach(function(t) { %>
+              <option value="<%= t.slug %>" data-subject="<%= t.subject.slug %>" <%= selectedTopic === t.slug ? 'selected' : '' %>><%= t.name %> (<%= t.subject.name %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Difficulty</label>
+          <select name="difficulty" class="form-control">
+            <option value="">All</option>
+            <option value="easy" <%= selectedDifficulty === 'easy' ? 'selected' : '' %>>Easy</option>
+            <option value="medium" <%= selectedDifficulty === 'medium' ? 'selected' : '' %>>Medium</option>
+            <option value="hard" <%= selectedDifficulty === 'hard' ? 'selected' : '' %>>Hard</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Questions</label>
+          <select name="count" class="form-control">
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20" selected>20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">Start Practice</button>
+      </div>
+      <div class="card-body" style="padding-top:0">
+        <div class="checkbox-group">
+          <input type="checkbox" name="unattempted" value="1" id="chkUnattempted">
+          <label for="chkUnattempted">Unattempted only <span class="xs muted">(questions you haven't solved)</span></label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" name="bookmarked" value="1" id="chkBookmarked">
+          <label for="chkBookmarked">Bookmarked only <span class="xs muted">(questions you saved)</span></label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" name="weak" value="1" id="chkWeak">
+          <label for="chkWeak">Weak topics first <span class="xs muted">(topics where you often answer wrong)</span></label>
+        </div>
+      </div>
+    </form>
+
+    <!-- Topic quick links -->
+    <div class="card">
+      <div class="card-header"><h2>Popular topics</h2></div>
+      <div class="card-body">
+        <div class="chip-list">
+          <% subjects.forEach(function(s) { %>
+            <span class="chip" style="font-size:13px"><%= s.name %></span>
+          <% }) %>
+        </div>
+        <div class="chip-list mt-2">
+          <% ['percentages', 'probability', 'profit-and-loss', 'time-and-work', 'time-speed-distance', 'coding-decoding', 'blood-relations', 'syllogisms', 'joins', 'dbms', 'operating-systems', 'arrays'].forEach(function(slug) {
+            var t = topics.find(function(x) { return x.slug === slug; });
+            if (t) { %>
+              <a href="/practice?subject=<%= t.subject.slug %>&topic=<%= t.slug %>" class="topic-pill"><%= t.name %></a>
+          <% } }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var subject = document.getElementById('subjectSelect');
+  var topic = document.getElementById('topicSelect');
+  function filterTopics() {
+    var val = subject.value;
+    Array.prototype.forEach.call(topic.options, function (opt) {
+      if (opt.value === '') { opt.style.display = ''; return; }
+      opt.style.display = !val || opt.dataset.subject === val ? '' : 'none';
+    });
+    if (val && topic.value) {
+      var sel = topic.options[topic.selectedIndex];
+      if (sel.dataset.subject !== val) topic.value = '';
+    }
+  }
+  subject.addEventListener('change', filterTopics);
+  filterTopics();
+})();
+</script>
+<%- include('../partials/footer') %>

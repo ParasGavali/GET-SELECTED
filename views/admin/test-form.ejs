@@ -1,0 +1,172 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:1000px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1><%= test ? 'Edit Test' : 'New Test' %></h1>
+          <p>Tests are made of sections; each section has questions, marks and negative marks.</p>
+        </div>
+        <a href="/admin/tests" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+    </div>
+
+    <form action="/admin/tests/<%= test ? String(test._id) : '' %>" method="POST" class="card">
+      <div class="card-body" style="display:grid;gap:18px">
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" name="title" class="form-control" required value="<%= test ? test.title : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Slug (optional)</label>
+            <input type="text" name="slug" class="form-control" placeholder="auto from title" value="<%= test ? test.slug : '' %>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="form-control" rows="2"><%= test ? test.description : '' %></textarea>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label>Type</label>
+            <select name="type" class="form-control">
+              <% ['quick_quiz','subject_test','full_mock','company_test','sectional','custom'].forEach(function(t) { %>
+                <option value="<%= t %>" <%= (!test && t === 'quick_quiz') || (test && test.type === t) ? 'selected' : '' %>><%= t.replace(/_/g, ' ') %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Duration (minutes)</label>
+            <input type="number" name="durationMinutes" class="form-control" value="<%= test ? test.durationMinutes : 10 %>" min="1" max="240">
+          </div>
+          <div class="form-group">
+            <label>Max attempts (0 = unlimited)</label>
+            <input type="number" name="maxAttempts" class="form-control" value="<%= test ? test.maxAttempts : 0 %>" min="0">
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label>Subject (optional)</label>
+            <select name="subject" class="form-control">
+              <option value="">None</option>
+              <% subjects.forEach(function(s) { %>
+                <option value="<%= String(s._id) %>" <%= test && test.subject && String(test.subject) === String(s._id) ? 'selected' : '' %>><%= s.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Topic (optional)</label>
+            <select name="topic" class="form-control">
+              <option value="">None</option>
+              <% topics.forEach(function(t) { %>
+                <option value="<%= String(t._id) %>" <%= test && test.topic && String(test.topic) === String(t._id) ? 'selected' : '' %>><%= t.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Company (optional)</label>
+            <select name="company" class="form-control">
+              <option value="">None</option>
+              <% companies.forEach(function(c) { %>
+                <option value="<%= String(c._id) %>" <%= test && test.company && String(test.company) === String(c._id) ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Instructions</label>
+          <textarea name="instructions" class="form-control" rows="2" placeholder="Shown to students before the test starts"><%= test ? test.instructions : '' %></textarea>
+        </div>
+
+        <div class="flex items-center gap-4 flex-wrap">
+          <label class="checkbox-line">
+            <input type="checkbox" name="negativeMarking" <%= test && test.negativeMarking ? 'checked' : '' %>>
+            <span>Negative marking (use per-section values)</span>
+          </label>
+          <label class="checkbox-line">
+            <input type="checkbox" name="randomization" <%= !test || test.randomization ? 'checked' : '' %>>
+            <span>Randomize question order</span>
+          </label>
+          <label class="checkbox-line">
+            <input type="checkbox" name="isPublished" <%= !test || test.isPublished ? 'checked' : '' %>>
+            <span>Published</span>
+          </label>
+          <label class="checkbox-line">
+            <input type="checkbox" name="featured" <%= test && test.featured ? 'checked' : '' %>>
+            <span>Featured</span>
+          </label>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 style="font-size:16px">Sections</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="addSection">+ Add Section</button>
+          </div>
+          <% var allQ = questions.map(function(q) { return { id: String(q._id), text: q.text, subject: q.subject ? q.subject.name : '', topic: q.topic ? q.topic.name : '', difficulty: q.difficulty, type: q.type }; }); %>
+          <div id="sectionsWrap" style="display:grid;gap:16px">
+            <% var secs = test ? test.sections : [{ name: 'Section 1', order: 0, questions: [], marksPerQuestion: 1, negativePerQuestion: 0 }]; %>
+            <% secs.forEach(function(sec, idx) { %>
+              <%- include('partials/section', { sec: sec, idx: idx, allQ: allQ }) %>
+            <% }) %>
+          </div>
+          <template id="sectionTemplate">
+            <%- include('partials/section', { sec: { name: 'NAME', order: 0, questions: [], marksPerQuestion: 1, negativePerQuestion: 0 }, idx: 'IDX', allQ: allQ }) %>
+          </template>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="/admin/tests" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary"><%= test ? 'Save Changes' : 'Create Test' %></button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  var tpl = document.getElementById('sectionTemplate').innerHTML;
+
+  function makeSection(idx, name) {
+    return tpl.replace(/NAME/g, name).replace(/IDX/g, idx);
+  }
+
+  function bindPicker(picker) {
+    var searchBox = picker.querySelector('.qp-search');
+    var list = picker.querySelector('.qp-list');
+    if (searchBox) searchBox.addEventListener('input', function () {
+      var q = searchBox.value.toLowerCase();
+      list.querySelectorAll('.qp-item').forEach(function (li) {
+        li.style.display = li.getAttribute('data-search').indexOf(q) === -1 ? 'none' : '';
+      });
+    });
+  }
+
+  document.querySelectorAll('.question-picker').forEach(bindPicker);
+
+  document.getElementById('addSection').addEventListener('click', function () {
+    var wrap = document.getElementById('sectionsWrap');
+    var idx = wrap.querySelectorAll('section').length;
+    var div = document.createElement('div');
+    div.innerHTML = makeSection(idx, 'Section ' + (idx + 1));
+    var section = div.firstElementChild;
+    wrap.appendChild(section);
+    bindPicker(section.querySelector('.question-picker'));
+    section.querySelector('.remove-section').addEventListener('click', function () {
+      if (wrap.querySelectorAll('section').length > 1) section.remove();
+    });
+  });
+
+  document.querySelectorAll('.remove-section').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var wrap = document.getElementById('sectionsWrap');
+      if (wrap.querySelectorAll('section').length > 1) btn.closest('section').remove();
+    });
+  });
+</script>
+<%- include('../partials/footer') %>

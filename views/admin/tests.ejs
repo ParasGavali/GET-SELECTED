@@ -1,0 +1,49 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1>Tests</h1>
+          <p><%= tests.length %> tests</p>
+        </div>
+        <a href="/admin/tests/new" class="btn btn-primary">+ New Test</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Title</th><th>Type</th><th>Company</th><th>Duration</th><th>Sections</th><th>Published</th><th style="width:180px"></th></tr></thead>
+          <tbody>
+            <% tests.forEach(function(t) { %>
+              <tr>
+                <td><a href="/tests/<%= t.slug %>"><%= t.title %></a></td>
+                <td><span class="badge badge-info"><%= t.type.replace(/_/g, ' ') %></span></td>
+                <td class="small"><%= t.company ? t.company.name : '—' %></td>
+                <td class="small"><%= t.durationMinutes %> min</td>
+                <td class="small"><%= t.sections.length %></td>
+                <td><span class="badge <%= t.isPublished ? 'badge-success' : 'badge-neutral' %>"><%= t.isPublished ? 'Published' : 'Draft' %></span></td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <a href="/admin/tests/<%= String(t._id) %>/edit" class="btn btn-ghost btn-sm" title="Edit"><i data-lucide="pencil" style="width:14px;height:14px"></i></a>
+                    <form action="/admin/tests/<%= String(t._id) %>/duplicate" method="POST" style="display:inline">
+                      <button type="submit" class="btn btn-ghost btn-sm" title="Duplicate"><i data-lucide="copy" style="width:14px;height:14px"></i></button>
+                    </form>
+                    <form action="/admin/tests/<%= String(t._id) %>/delete" method="POST" data-confirm="Delete this test and all its attempts?" style="display:inline">
+                      <button type="submit" class="btn btn-ghost btn-sm btn-danger-text" title="Delete"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (!tests.length) { %><tr><td colspan="7" class="muted small" style="text-align:center;padding:32px">No tests yet.</td></tr><% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

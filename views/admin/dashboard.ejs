@@ -1,0 +1,74 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Admin Dashboard</h1>
+      <p>Overview of platform activity.</p>
+    </div>
+
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+      <div class="stat-card"><span class="stat-icon" style="background:#e0e7ff"><i data-lucide="users"></i></span><div class="stat-value"><%= stats.totalStudents %></div><div class="stat-label">Students</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#dcfce7"><i data-lucide="activity"></i></span><div class="stat-value"><%= stats.activeToday %></div><div class="stat-label">Active Today</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#fef3c7"><i data-lucide="clipboard-list"></i></span><div class="stat-value"><%= stats.testsAttempted %></div><div class="stat-label">Tests Attempted</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#fce7f3"><i data-lucide="help-circle"></i></span><div class="stat-value"><%= stats.qAttempted %></div><div class="stat-label">Qs (7d)</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#e0e7ff"><i data-lucide="file-text"></i></span><div class="stat-value"><%= stats.questions %></div><div class="stat-label">Questions</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#dcfce7"><i data-lucide="list-checks"></i></span><div class="stat-value"><%= stats.tests %></div><div class="stat-label">Tests</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#fef3c7"><i data-lucide="building-2"></i></span><div class="stat-value"><%= stats.companies %></div><div class="stat-label">Companies</div></div>
+      <div class="stat-card"><span class="stat-icon" style="background:#fce7f3"><i data-lucide="code"></i></span><div class="stat-value"><%= stats.codingProblems %></div><div class="stat-label">Coding</div></div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-header"><h2>Activity (14 days)</h2></div>
+        <div class="card-body">
+          <canvas id="activityChart" height="110"></canvas>
+          <% if (!dailyActivity.length) { %><p class="muted small">No activity yet.</p><% } %>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Popular Tests</h2></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Test</th><th>Attempts</th></tr></thead>
+            <tbody>
+              <% popularTests.forEach(function(t) { %>
+                <tr>
+                  <td><a href="/tests/<%= t.slug %>"><%= t.title %></a></td>
+                  <td class="fw-600"><%= t.count %></td>
+                </tr>
+              <% }) %>
+              <% if (!popularTests.length) { %><tr><td colspan="2" class="muted small">No attempts yet.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  var labels = <%- JSON.stringify(dailyActivity.map(function(d) { return d._id.slice(5); })) %>;
+  var values = <%- JSON.stringify(dailyActivity.map(function(d) { return d.count; })) %>;
+  if (labels.length) {
+    var c = document.getElementById('activityChart');
+    var card = c.closest('.card');
+    c.width = card.offsetWidth;
+    var x = c.getContext('2d');
+    var w = c.width, h = c.height, pad = 26;
+    var max = Math.max.apply(null, values) || 1;
+    var bw = (w - pad * 2) / values.length;
+    x.fillStyle = '#4f46e5';
+    values.forEach(function(v, i) {
+      var bh = (v / max) * (h - pad * 2);
+      x.fillRect(pad + i * bw + 2, h - pad - bh, bw - 4, bh);
+    });
+    x.fillStyle = '#64748b';
+    x.font = '10px Inter';
+    labels.forEach(function(l, i) {
+      if (i % 2 === 0 || values.length < 8) x.fillText(l, pad + i * bw, h - 8);
+    });
+  }
+</script>
+<%- include('../partials/footer') %>

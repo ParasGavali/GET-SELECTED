@@ -1,0 +1,201 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Analytics</h1>
+      <p>Your preparation, measured honestly from real attempts.</p>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:24px">
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--primary-light);color:var(--primary)"><i data-lucide="check-circle"></i></span>
+        <div><div class="stat-value"><%= data.totals.questions %></div><div class="stat-label">Questions Solved</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--success-light);color:var(--success)"><i data-lucide="target"></i></span>
+        <div><div class="stat-value"><%= data.totals.accuracy %>%</div><div class="stat-label">Overall Accuracy</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--warning-light);color:var(--warning)"><i data-lucide="file-check"></i></span>
+        <div><div class="stat-value"><%= data.totals.tests %></div><div class="stat-label">Tests Completed</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--info-light);color:var(--info)"><i data-lucide="timer"></i></span>
+        <div><div class="stat-value"><%= formatTime(data.totals.avgTime) %></div><div class="stat-label">Avg Test Time</div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-header"><h2>Score Trend</h2></div>
+        <div class="card-body"><div class="chart-box"><canvas id="scoreChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Daily Questions Solved</h2></div>
+        <div class="card-body"><div class="chart-box"><canvas id="dailyChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-header"><h2>Subject Performance</h2></div>
+        <div class="card-body">
+          <% if (data.subjectPerformance.length) { %>
+            <div class="chart-box" style="height:240px"><canvas id="subjectChart"></canvas></div>
+          <% } else { %>
+            <div class="empty-state"><i data-lucide="bar-chart-3"></i><h3>No data yet</h3><p>Solve questions to see subject-wise performance.</p></div>
+          <% } %>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Difficulty Performance</h2></div>
+        <div class="card-body">
+          <% if (data.difficultyPerformance.length) { %>
+            <div class="chart-box" style="height:240px"><canvas id="diffChart"></canvas></div>
+          <% } else { %>
+            <div class="empty-state"><i data-lucide="bar-chart-3"></i><h3>No data yet</h3></div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2>Topic Performance</h2></div>
+      <div class="card-body">
+        <% if (data.topicPerformance.length) { %>
+          <div class="grid grid-2">
+            <% data.topicPerformance.forEach(function(t) { %>
+              <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="small fw-600"><%= t.name %> <span class="xs muted">(<%= t.subject %>)</span></span>
+                  <span class="small muted"><%= t.total %> q · avg <%= t.avgTime %>s</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="progress" style="flex:1"><div class="progress-bar <%= t.accuracy >= 70 ? 'green' : t.accuracy >= 40 ? 'amber' : 'red' %>" style="width:<%= t.accuracy %>%"></div></div>
+                  <span class="small fw-600" style="width:40px;text-align:right"><%= t.accuracy %>%</span>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state"><i data-lucide="list-checks"></i><h3>No topic data yet</h3><p>Practice by topic to unlock this breakdown.</p></div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Strong & Weak Topics</h2><a href="/ai-analysis" class="btn-link btn-sm">AI Analysis</a></div>
+      <div class="card-body grid grid-2">
+        <div>
+          <h3 style="font-size:15px" class="mb-2 text-success">Strong</h3>
+          <% var strong = data.topicPerformance.filter(function(t) { return t.total >= 3 && t.accuracy >= 70; }).sort(function(a, b) { return b.accuracy - a.accuracy; }).slice(0, 5); %>
+          <% if (strong.length) { %>
+            <div class="chip-list">
+              <% strong.forEach(function(t) { %><span class="chip" style="background:var(--success-light);color:var(--success);border-color:transparent"><%= t.name %> · <%= t.accuracy %>%</span><% }) %>
+            </div>
+          <% } else { %><p class="small muted">Solve at least 3 questions per topic to identify strengths.</p><% } %>
+        </div>
+        <div>
+          <h3 style="font-size:15px" class="mb-2 text-danger">Weak</h3>
+          <% var weak = data.topicPerformance.filter(function(t) { return t.total >= 3 && t.accuracy < 70; }).sort(function(a, b) { return a.accuracy - b.accuracy; }).slice(0, 5); %>
+          <% if (weak.length) { %>
+            <div class="chip-list">
+              <% weak.forEach(function(t) { %><span class="chip" style="background:var(--danger-light);color:var(--danger);border-color:transparent"><%= t.name %> · <%= t.accuracy %>%</span><% }) %>
+            </div>
+            <a href="/practice?weak=1" class="btn btn-primary btn-sm mt-2">Practice Weak Topics</a>
+          <% } else { %><p class="small muted">No weak topics detected. Keep practicing!</p><% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var scoreTrend = <%- JSON.stringify(data.scoreTrend) %>;
+  var daily = <%- JSON.stringify(data.dailyActivity) %>;
+  var subjects = <%- JSON.stringify(data.subjectPerformance) %>;
+  var diffs = <%- JSON.stringify(data.difficultyPerformance) %>;
+
+  if (window.Chart) {
+    if (scoreTrend.length) {
+      new Chart(document.getElementById('scoreChart'), {
+        type: 'line',
+        data: {
+          labels: scoreTrend.map(function (t) { return new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); }),
+          datasets: [{
+            label: 'Score / ' + (scoreTrend[0] ? scoreTrend[0].max : 0),
+            data: scoreTrend.map(function (t) { return t.score; }),
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79,70,229,0.1)',
+            fill: true, tension: 0.3, pointRadius: 4
+          }, {
+            label: 'Accuracy %',
+            data: scoreTrend.map(function (t) { return t.accuracy; }),
+            borderColor: '#059669', backgroundColor: 'transparent',
+            tension: 0.3, pointRadius: 3, yAxisID: 'y1'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+            y1: { beginAtZero: true, position: 'right', max: 100, grid: { display: false } }
+          }
+        }
+      });
+    } else {
+      var el = document.getElementById('scoreChart').parentElement;
+      el.innerHTML = '<div class="empty-state"><i data-lucide="line-chart"></i><h3>No tests yet</h3></div>';
+    }
+
+    if (daily.length) {
+      new Chart(document.getElementById('dailyChart'), {
+        type: 'bar',
+        data: {
+          labels: daily.map(function (d) { return d.date.slice(5); }),
+          datasets: [{ label: 'Questions', data: daily.map(function (d) { return d.count; }), backgroundColor: '#c7d2fe', borderRadius: 4 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      });
+    }
+
+    if (subjects.length) {
+      new Chart(document.getElementById('subjectChart'), {
+        type: 'bar',
+        data: {
+          labels: subjects.map(function (s) { return s.name; }),
+          datasets: [{
+            label: 'Accuracy %',
+            data: subjects.map(function (s) { return s.accuracy; }),
+            backgroundColor: ['#4f46e5', '#059669', '#e11d48', '#0284c7', '#d97706', '#7c3aed'],
+            borderRadius: 6
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { max: 100, beginAtZero: true } } }
+      });
+    }
+
+    if (diffs.length) {
+      new Chart(document.getElementById('diffChart'), {
+        type: 'bar',
+        data: {
+          labels: diffs.map(function (d) { return d.name; }),
+          datasets: [{
+            label: 'Questions',
+            data: diffs.map(function (d) { return d.total; }),
+            backgroundColor: ['#34d399', '#fbbf24', '#f87171'],
+            borderRadius: 6
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      });
+    }
+  }
+})();
+</script>
+<%- include('../partials/footer') %>

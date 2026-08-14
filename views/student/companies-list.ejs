@@ -1,0 +1,25 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Company Preparation</h1>
+      <p>Prepare for specific companies with practice tests and mocks. Content is for practice only and not affiliated with any company.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <% companies.forEach(function(c) { %>
+        <% var cts = countMap.get(String(c._id)); %>
+        <a href="/companies/<%= c.slug %>" class="card company-card">
+          <span class="company-logo" style="background:<%= c.color %>"><%= c.shortName ? c.shortName.slice(0, 2).toUpperCase() : c.name.slice(0, 2).toUpperCase() %></span>
+          <div style="flex:1">
+            <h3><%= c.name %></h3>
+            <div class="meta small"><%= cts ? cts.tests : 0 %> tests · <%= cts ? cts.questions : 0 %> questions</div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

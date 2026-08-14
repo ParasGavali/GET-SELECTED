@@ -1,0 +1,75 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main" style="max-width:960px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center gap-4 flex-wrap">
+        <span class="company-logo" style="width:56px;height:56px;font-size:17px;background:<%= company.color %>"><%= company.shortName ? company.shortName.slice(0, 2).toUpperCase() : company.name.slice(0, 2).toUpperCase() %></span>
+        <div>
+          <h1><%= company.name %> Preparation</h1>
+          <p><%= company.description %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info"><%= company.disclaimer %></div>
+
+    <div class="chip-list mb-4">
+      <span class="chip" style="font-size:13px">Focus areas:</span>
+      <% focusAreas.forEach(function(f) { %><span class="chip" style="font-size:13px"><%= f %></span><% }) %>
+    </div>
+
+    <div class="grid grid-2 mb-4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <% focusAreas.forEach(function(f) { %>
+        <a href="/practice?subject=<%= f.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-') %>&count=10" class="card card-body quick-link" style="display:flex;align-items:center;gap:12px">
+          <span class="ql-icon" style="background:#4f46e5"><i data-lucide="book-open"></i></span>
+          <div><b><%= f %> Practice</b><span>Start practicing now</span></div>
+        </a>
+      <% }) %>
+    </div>
+
+    <% if (tests.length) { %>
+      <h2 style="font-size:16px" class="mb-2">Test Series</h2>
+      <div class="grid grid-2 mb-4">
+        <% tests.forEach(function(t) { %>
+          <a href="/tests/<%= t.slug %>" class="card test-card">
+            <span class="badge badge-primary"><%= t.type.replace(/_/g, ' ') %></span>
+            <h3><%= t.title %></h3>
+            <p class="desc"><%= t.description %></p>
+            <div class="test-meta">
+              <span><i data-lucide="clock"></i> <%= t.durationMinutes %> min</span>
+              <span><i data-lucide="list"></i> <%= t.sections.reduce(function(a, s) { return a + s.questions.length; }, 0) %> Qs</span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (coding.length) { %>
+      <h2 style="font-size:16px" class="mb-2">Coding Practice (<%= coding.length %>)</h2>
+      <div class="grid grid-2 mb-4">
+        <% coding.forEach(function(p) { %>
+          <a href="/coding/<%= p.slug %>" class="card test-card">
+            <div class="flex items-center justify-between">
+              <span class="badge badge-warning"><%= p.difficulty %></span>
+              <span class="badge badge-neutral"><%= p.category %></span>
+            </div>
+            <h3><%= p.title %></h3>
+            <div class="test-meta"><span><i data-lucide="tag"></i> <%= (p.tags || []).slice(0, 3).join(', ') %></span></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (!tests.length && !coding.length) { %>
+      <div class="empty-state">
+        <i data-lucide="building-2"></i>
+        <h3>No <%= company.name %> content yet</h3>
+        <p>Practice the general tests below while company-specific content is prepared.</p>
+        <a href="/tests" class="btn btn-primary mt-2">Browse All Tests</a>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

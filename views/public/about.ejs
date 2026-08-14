@@ -1,0 +1,35 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-public') %>
+<main>
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+    <div class="section">
+      <div class="page-head">
+        <h1>About <%= appName %></h1>
+        <p><%= appTagline %></p>
+      </div>
+      <div class="card card-body">
+        <h2 style="font-size:18px">What is <%= appName %>?</h2>
+        <p class="mt-1 muted"><%= appName %> is a completely free engineering placement preparation platform. It exists for one purpose: to help engineering students prepare for placement tests and interviews through focused practice, real tests and honest analytics.</p>
+
+        <hr class="divider">
+        <h2 style="font-size:18px">The core loop</h2>
+        <div class="mt-2 grid grid-2">
+          <div><b>Practice</b><p class="small muted">Aptitude, reasoning, verbal, technical, coding and SQL - topic by topic.</p></div>
+          <div><b>Test</b><p class="small muted">Quick quizzes, topic tests, sectionals, full mocks and company tests.</p></div>
+          <div><b>Analyze</b><p class="small muted">Real scores, percentiles, rankings and performance analytics.</p></div>
+          <div><b>Improve</b><p class="small muted">AI analysis points to your weak topics with recommended practice.</p></div>
+        </div>
+
+        <hr class="divider">
+        <h2 style="font-size:18px">Everything is free</h2>
+        <p class="mt-1 muted">There are no premium plans, no paywalls, no locked content and no subscriptions. Every registered student gets access to everything, forever.</p>
+
+        <hr class="divider">
+        <h2 style="font-size:18px">What <%= appName %> is not</h2>
+        <p class="mt-1 muted"><%= appName %> is not a career counselling service, job marketplace or generic chatbot. It focuses exclusively on placement test and interview preparation.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

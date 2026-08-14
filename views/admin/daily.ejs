@@ -1,0 +1,60 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:860px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Daily Challenge</h1>
+      <p>Set the daily challenge questions and description. Students can also take the auto-generated challenge each day.</p>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2>Create / Update Challenge</h2></div>
+      <form action="/admin/daily" method="POST">
+        <div class="card-body" style="display:grid;gap:16px">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" name="date" class="form-control" value="<%= today %>">
+          </div>
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" class="form-control" placeholder="Daily Placement Challenge - YYYY-MM-DD">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Question IDs (comma separated)</label>
+            <input type="text" name="questions" class="form-control" placeholder="Leave empty for auto-generated from active question bank">
+            <p class="xs muted mt-1">Auto-generation picks a balanced set (Aptitude, Reasoning, Technical, Coding) when empty.</p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Save Challenge</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Recent Challenges</h2></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Date</th><th>Title</th><th>Questions</th><th>Active</th></tr></thead>
+          <tbody>
+            <% challenges.forEach(function(c) { %>
+              <tr>
+                <td class="fw-600"><%= c.date %></td>
+                <td class="small"><%= c.title %></td>
+                <td class="small"><%= c.questions.length %></td>
+                <td><span class="badge <%= c.isActive ? 'badge-success' : 'badge-neutral' %>"><%= c.isActive ? 'Active' : 'Inactive' %></span></td>
+              </tr>
+            <% }) %>
+            <% if (!challenges.length) { %><tr><td colspan="4" class="muted small" style="text-align:center;padding:32px">No challenges yet.</td></tr><% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

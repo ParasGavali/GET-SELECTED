@@ -1,0 +1,45 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1>Coding Problems</h1>
+          <p><%= problems.length %> problems</p>
+        </div>
+        <a href="/admin/coding/new" class="btn btn-primary">+ New Problem</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Title</th><th>Category</th><th>Difficulty</th><th>Slug</th><th>Active</th><th style="width:110px"></th></tr></thead>
+          <tbody>
+            <% problems.forEach(function(p) { %>
+              <tr>
+                <td><a href="/coding/<%= p.slug %>"><%= p.title %></a></td>
+                <td><span class="badge badge-neutral"><%= p.category %></span></td>
+                <td><span class="badge badge-<%= p.difficulty === 'easy' ? 'success' : p.difficulty === 'medium' ? 'warning' : 'danger' %>"><%= p.difficulty %></span></td>
+                <td class="small muted"><%= p.slug %></td>
+                <td><span class="badge <%= p.isActive ? 'badge-success' : 'badge-neutral' %>"><%= p.isActive ? 'Active' : 'Inactive' %></span></td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <a href="/admin/coding/<%= String(p._id) %>/edit" class="btn btn-ghost btn-sm" title="Edit"><i data-lucide="pencil" style="width:14px;height:14px"></i></a>
+                    <form action="/admin/coding/<%= String(p._id) %>/delete" method="POST" data-confirm="Delete this coding problem?" style="display:inline">
+                      <button type="submit" class="btn btn-ghost btn-sm btn-danger-text" title="Delete"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (!problems.length) { %><tr><td colspan="6" class="muted small" style="text-align:center;padding:32px">No coding problems yet.</td></tr><% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

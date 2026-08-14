@@ -1,0 +1,118 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main" style="max-width:960px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Test Result</h1>
+      <p><%= attempt.test.title %> · Submitted <%= formatDate(attempt.submittedAt) %></p>
+    </div>
+
+    <div class="card mb-4">
+      <div class="result-hero">
+        <div class="xs muted">Your score</div>
+        <div class="result-score"><%= attempt.score %><small> / <%= attempt.maxScore %></small></div>
+        <div class="result-verdict">
+          <% var pct = attempt.maxScore ? Math.round((attempt.score / attempt.maxScore) * 100) : 0; %>
+          <%= pct >= 70 ? 'Great job!' : pct >= 50 ? 'Good effort - keep pushing!' : 'Keep practicing - you will improve!' %>
+        </div>
+        <div class="flex items-center justify-center gap-2 mt-2">
+          <span class="badge badge-success"><%= attempt.percentile !== null ? attempt.percentile + 'th percentile' : 'Percentile pending' %></span>
+          <% if (attempt.rank) { %><span class="badge badge-primary">Rank #<%= attempt.rank %> of <%= totalParticipants %></span><% } %>
+        </div>
+      </div>
+      <div class="card-body" style="border-top:1px solid var(--border)">
+        <div class="result-stats">
+          <div class="result-stat"><b><%= attempt.accuracy %>%</b><span>Accuracy</span></div>
+          <div class="result-stat green"><b><%= attempt.correct %></b><span>Correct</span></div>
+          <div class="result-stat red"><b><%= attempt.incorrect %></b><span>Incorrect</span></div>
+          <div class="result-stat"><b><%= attempt.skipped %></b><span>Skipped</span></div>
+          <div class="result-stat"><b><%= formatTime(attempt.timeTaken) %></b><span>Time Taken</span></div>
+          <div class="result-stat"><b><%= attempt.totalQuestions %></b><span>Total Questions</span></div>
+          <div class="result-stat"><b><%= attempt.correct + attempt.incorrect %></b><span>Attempted</span></div>
+          <div class="result-stat"><b><%= attempt.percentile !== null ? attempt.percentile + '%' : '—' %></b><span>Percentile</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section analysis -->
+    <div class="card mb-4">
+      <div class="card-header"><h2>Section Analysis</h2></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Section</th><th>Score</th><th>Correct</th><th>Incorrect</th><th>Skipped</th><th>Accuracy</th></tr></thead>
+          <tbody>
+            <% attempt.sectionStats.forEach(function(s) { %>
+              <tr>
+                <td class="fw-600"><%= s.section %></td>
+                <td><%= s.score %></td>
+                <td class="text-success fw-600"><%= s.correct %></td>
+                <td class="text-danger fw-600"><%= s.incorrect %></td>
+                <td><%= s.skipped %></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div class="progress" style="width:80px"><div class="progress-bar <%= s.accuracy >= 70 ? 'green' : s.accuracy >= 40 ? 'amber' : 'red' %>" style="width:<%= s.accuracy %>%"></div></div>
+                    <span class="small"><%= s.accuracy %>%</span>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Topic analysis -->
+    <div class="card mb-4">
+      <div class="card-header"><h2>Topic Analysis</h2></div>
+      <div class="card-body">
+        <% if (attempt.topicStats.length) { %>
+          <div class="grid grid-2">
+            <% attempt.topicStats.forEach(function(t) { %>
+              <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="small fw-600"><%= t.topic %></span>
+                  <span class="badge <%= t.accuracy >= 70 ? 'badge-success' : t.accuracy >= 40 ? 'badge-warning' : 'badge-danger' %>"><%= t.accuracy %>%</span>
+                </div>
+                <div class="progress"><div class="progress-bar <%= t.accuracy >= 70 ? 'green' : t.accuracy >= 40 ? 'amber' : 'red' %>" style="width:<%= t.accuracy %>%"></div></div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="muted small">Topic breakdown will appear here.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Question review -->
+    <div class="card mb-4">
+      <div class="card-header"><h2>Question Review</h2></div>
+      <div class="card-body">
+        <% attempt.answers.forEach(function(a, i) { %>
+          <% var cls = a.selected === null ? 'skipped' : a.isCorrect ? 'correct' : 'incorrect'; %>
+          <% var statusText = a.selected === null ? 'Skipped' : a.isCorrect ? 'Correct' : 'Incorrect'; %>
+          <div class="review-item <%= cls %>">
+            <div class="flex items-center justify-between mb-1">
+              <span class="xs muted"><%= a.section %> · Q<%= i + 1 %></span>
+              <span class="badge <%= cls === 'correct' ? 'badge-success' : cls === 'incorrect' ? 'badge-danger' : 'badge-neutral' %>"><%= statusText %></span>
+            </div>
+            <div class="q-text" style="font-size:15px;margin-bottom:8px"><%= a.question.text %></div>
+            <% ['A','B','C','D'].forEach(function(l, oi) { %>
+              <% var ocls = 'review-opt '; if (oi === a.question.correctOption) ocls += 'is-correct '; if (oi === a.selected && !a.isCorrect) ocls += 'user-wrong '; if (oi === a.selected && a.isCorrect) ocls += 'user-selected-correct '; %>
+              <div class="<%= ocls %>"><%= l %>. <%= a.question.options[oi] %><% if (oi === a.question.correctOption) { %> <span class="xs muted">(correct)</span><% } %></div>
+            <% }) %>
+            <% if (a.question.explanation) { %><div class="explanation"><b>Explanation:</b> <%= a.question.explanation %></div><% } %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="flex gap-2 flex-wrap">
+      <a href="/tests" class="btn btn-primary">Take Another Test</a>
+      <a href="/analytics" class="btn btn-outline">View Analytics</a>
+      <a href="/ai-analysis" class="btn btn-outline">AI Performance Analysis</a>
+      <a href="/practice" class="btn btn-ghost">Practice Weak Topics</a>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

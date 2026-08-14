@@ -1,0 +1,190 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+
+    <div class="page-head flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1>Your Placement Preparation</h1>
+        <p>Welcome back, <%= user.name.split(' ')[0] %>. Keep the momentum going.</p>
+      </div>
+      <% if (user.streak > 0) { %>
+        <span class="badge badge-warning" style="font-size:14px;padding:8px 14px"><i data-lucide="flame" style="width:16px;height:16px"></i> <%= user.streak %> day streak</span>
+      <% } %>
+    </div>
+
+    <!-- Quick practice -->
+    <div class="quick-links">
+      <a href="/practice?subject=aptitude&count=10" class="quick-link">
+        <span class="ql-icon" style="background:#4f46e5"><i data-lucide="calculator"></i></span>
+        <div><b>Aptitude</b><span>Practice now</span></div>
+      </a>
+      <a href="/practice?subject=logical-reasoning&count=10" class="quick-link">
+        <span class="ql-icon" style="background:#059669"><i data-lucide="brain"></i></span>
+        <div><b>Reasoning</b><span>Practice now</span></div>
+      </a>
+      <a href="/practice?subject=technical&count=10" class="quick-link">
+        <span class="ql-icon" style="background:#0284c7"><i data-lucide="cpu"></i></span>
+        <div><b>Technical</b><span>Practice now</span></div>
+      </a>
+      <a href="/coding" class="quick-link">
+        <span class="ql-icon" style="background:#d97706"><i data-lucide="code"></i></span>
+        <div><b>Coding</b><span>Solve problems</span></div>
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-4" style="margin-bottom:24px">
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--primary-light);color:var(--primary)"><i data-lucide="file-check"></i></span>
+        <div><div class="stat-value"><%= stats.testsCompleted %></div><div class="stat-label">Tests Completed</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--success-light);color:var(--success)"><i data-lucide="check-circle"></i></span>
+        <div><div class="stat-value"><%= stats.questionsSolved %></div><div class="stat-label">Questions Solved</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--warning-light);color:var(--warning)"><i data-lucide="terminal"></i></span>
+        <div><div class="stat-value"><%= stats.codingSolved %></div><div class="stat-label">Coding Solved</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--info-light);color:var(--info)"><i data-lucide="target"></i></span>
+        <div><div class="stat-value"><%= stats.practiceAccuracy %>%</div><div class="stat-label">Overall Accuracy</div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="grid-template-columns:1.4fr 1fr;margin-bottom:24px">
+      <div style="display:grid;gap:20px">
+        <!-- Performance trend -->
+        <div class="card">
+          <div class="card-header"><h2>Performance Trend</h2><a href="/analytics" class="btn-link btn-sm">View analytics</a></div>
+          <div class="card-body">
+            <% if (stats.trend.length) { %>
+              <canvas id="trendChart" style="height:220px"></canvas>
+            <% } else { %>
+              <div class="empty-state"><i data-lucide="line-chart"></i><h3>No tests yet</h3><p>Complete a test to see your performance trend.</p><a href="/tests" class="btn btn-primary btn-sm mt-2">Take a test</a></div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Recent tests -->
+        <div class="card">
+          <div class="card-header"><h2>Recent Tests</h2><a href="/tests/history" class="btn-link btn-sm">All history</a></div>
+          <div class="table-wrap">
+            <% if (stats.recentTests.length) { %>
+              <table class="table">
+                <thead><tr><th>Test</th><th>Score</th><th>Accuracy</th><th>Date</th><th></th></tr></thead>
+                <tbody>
+                  <% stats.recentTests.slice(0, 5).forEach(function(a) { %>
+                    <tr>
+                      <td><%= a.test ? a.test.title : 'Test' %></td>
+                      <td class="fw-600"><%= a.score %> / <%= a.maxScore %></td>
+                      <td><%= a.accuracy %>%</td>
+                      <td class="muted"><%= formatDate(a.submittedAt) %></td>
+                      <td><a href="/tests/<%= a.test ? a.test.slug : '' %>/result/<%= a._id %>" class="btn-link btn-sm">View</a></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <div class="empty-state"><i data-lucide="file-text"></i><h3>No tests yet</h3><p>Take your first test to see results here.</p></div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:20px">
+        <!-- Ranking -->
+        <div class="card">
+          <div class="card-header"><h2>Your Ranking</h2><a href="/leaderboard" class="btn-link btn-sm">Leaderboard</a></div>
+          <div class="card-body text-center">
+            <% if (ranking) { %>
+              <div class="result-score" style="font-size:44px"><%= ranking.rank %><small style="font-size:16px"> / <%= ranking.total %></small></div>
+              <div class="mt-1"><span class="badge badge-success" style="font-size:13px;padding:6px 14px"><%= ranking.percentile %>th percentile</span></div>
+              <p class="small muted mt-2"><%= ranking.points %> preparation points</p>
+            <% } else { %>
+              <div class="empty-state"><i data-lucide="medal"></i><h3>No rank yet</h3><p>Complete tests to appear on the leaderboard.</p></div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Weak topics -->
+        <div class="card">
+          <div class="card-header"><h2>Weak Topics</h2><a href="/practice?weak=1" class="btn-link btn-sm">Practice weak</a></div>
+          <div class="card-body">
+            <% if (stats.weakTopics.length) { %>
+              <% stats.weakTopics.forEach(function(t) { %>
+                <div class="mb-3">
+                  <div class="flex items-center justify-between mb-1">
+                    <a href="/practice?subject=<%= t.subjectSlug %>&topic=<%= t.slug %>" class="fw-600 small"><%= t.name %></a>
+                    <span class="badge badge-danger"><%= t.accuracy %>%</span>
+                  </div>
+                  <div class="progress"><div class="progress-bar red" style="width:<%= t.accuracy %>%"></div></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="empty-state" style="padding:24px"><i data-lucide="smile"></i><h3>No weak topics</h3><p>Solve more questions to detect weak areas.</p></div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Recommended practice -->
+        <div class="card">
+          <div class="card-header"><h2>Recommended Practice</h2></div>
+          <div class="card-body" style="display:grid;gap:10px">
+            <% if (stats.weakTopics.length) { %>
+              <a href="/practice?topic=<%= stats.weakTopics[0].slug %>&count=15" class="btn btn-primary btn-block">Focus: <%= stats.weakTopics[0].name %></a>
+            <% } %>
+            <a href="/daily" class="btn btn-outline btn-block">Daily Placement Challenge</a>
+            <a href="/tests" class="btn btn-outline btn-block">Take a Mock Test</a>
+            <a href="/coding" class="btn btn-outline btn-block">Solve Coding Problems</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var trend = <%- JSON.stringify(stats.trend) %>;
+  if (trend.length && window.Chart) {
+    var ctx = document.getElementById('trendChart');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: trend.map(function (t) { return new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); }),
+        datasets: [{
+          label: 'Score',
+          data: trend.map(function (t) { return t.score; }),
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79,70,229,0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4
+        }, {
+          label: 'Accuracy %',
+          data: trend.map(function (t) { return t.accuracy; }),
+          borderColor: '#059669',
+          backgroundColor: 'transparent',
+          tension: 0.3,
+          pointRadius: 3,
+          yAxisID: 'yAcc'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'bottom' } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          yAcc: { beginAtZero: true, position: 'right', max: 100, grid: { display: false } }
+        }
+      }
+    });
+  }
+})();
+</script>
+<%- include('../partials/footer') %>

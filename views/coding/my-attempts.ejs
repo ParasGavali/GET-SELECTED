@@ -1,0 +1,39 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1>My Submissions</h1>
+          <p>All your coding submissions across problems.</p>
+        </div>
+        <a href="/coding" class="btn btn-outline">Browse Problems</a>
+      </div>
+    </div>
+
+    <% if (!submissions.length) { %>
+      <div class="card"><div class="empty-state"><i data-lucide="code-xml"></i><h3>No submissions yet</h3><p>Solve your first coding problem to see it here.</p><a href="/coding" class="btn btn-primary mt-2">Start Coding</a></div></div>
+    <% } else { %>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Problem</th><th>Language</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+              <% submissions.forEach(function(s) { %>
+                <tr>
+                  <td><a href="/coding/<%= s.problem ? s.problem.slug : '#' %>"><%= s.problem ? s.problem.title : 'Deleted problem' %></a></td>
+                  <td class="small"><%= s.language %></td>
+                  <td class="muted small"><%= formatDate(s.createdAt) %></td>
+                  <td><span class="badge badge-info">Submitted</span></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

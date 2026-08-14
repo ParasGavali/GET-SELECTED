@@ -1,0 +1,69 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Coding Practice</h1>
+      <p>Programming, DSA and SQL problems. Build real problem-solving skills.</p>
+    </div>
+
+    <form action="/coding" method="GET" class="card" style="margin-bottom:24px">
+      <div class="filter-bar">
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category" class="form-control">
+            <option value="">All Categories</option>
+            <option value="programming" <%= filters.category === 'programming' ? 'selected' : '' %>>Programming</option>
+            <option value="dsa" <%= filters.category === 'dsa' ? 'selected' : '' %>>DSA</option>
+            <option value="sql" <%= filters.category === 'sql' ? 'selected' : '' %>>SQL</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Difficulty</label>
+          <select name="difficulty" class="form-control">
+            <option value="">All</option>
+            <option value="easy" <%= filters.difficulty === 'easy' ? 'selected' : '' %>>Easy</option>
+            <option value="medium" <%= filters.difficulty === 'medium' ? 'selected' : '' %>>Medium</option>
+            <option value="hard" <%= filters.difficulty === 'hard' ? 'selected' : '' %>>Hard</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label>Search</label>
+          <div class="search-bar">
+            <i data-lucide="search"></i>
+            <input type="text" name="q" class="form-control" placeholder="Search problems..." value="<%= filters.q %>">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/coding/my-attempts" class="btn btn-outline">My Submissions</a>
+        <% } %>
+      </div>
+    </form>
+
+    <% if (!problems.length) { %>
+      <div class="empty-state"><i data-lucide="code-xml"></i><h3>No problems found</h3><p>Try adjusting the filters.</p></div>
+    <% } else { %>
+      <div class="grid grid-2">
+        <% problems.forEach(function(p) { %>
+          <a href="/coding/<%= p.slug %>" class="card test-card">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="badge badge-<%= p.difficulty === 'easy' ? 'success' : p.difficulty === 'medium' ? 'warning' : 'danger' %>"><%= p.difficulty %></span>
+                <span class="badge badge-neutral"><%= p.category %></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <% if (p.solved) { %><span class="badge badge-success"><i data-lucide="check" style="width:12px;height:12px"></i> Solved</span><% } %>
+                <% if (p.bookmarked) { %><i data-lucide="bookmark" style="width:16px;height:16px;color:var(--warning)" fill="currentColor"></i><% } %>
+              </div>
+            </div>
+            <h3><%= p.title %></h3>
+            <div class="test-meta"><span><i data-lucide="tag"></i> <%= (p.tags || []).slice(0, 4).join(', ') %></span></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

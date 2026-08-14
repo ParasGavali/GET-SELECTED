@@ -1,0 +1,152 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main" style="max-width:860px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Daily Placement Challenge</h1>
+      <p><%= challenge.title %> · <%= challenge.description %></p>
+    </div>
+
+    <% if (result) { %>
+      <div class="card mb-4">
+        <div class="result-hero">
+          <h1 style="font-size:20px">Challenge Complete</h1>
+          <div class="result-score"><%= result.score %><small> / <%= questions.length %></small></div>
+          <div class="mt-2">
+            <span class="badge badge-success">Accuracy <%= result.accuracy %>%</span>
+            <span class="badge badge-info">Attempted <%= result.attempted %> of <%= questions.length %></span>
+            <span class="badge badge-neutral"><%= formatTime(result.timeTaken) %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Your Answers</h2></div>
+        <div class="card-body">
+          <% questions.forEach(function(q, i) { %>
+            <% var ans = result.answers.find(function(a) { return String(a.question) === String(q._id); }); %>
+            <div class="review-item <%= ans && ans.selected !== null && ans.isCorrect ? 'correct' : ans && ans.selected !== null ? 'incorrect' : 'skipped' %>">
+              <div class="flex items-center justify-between mb-1">
+                <span class="xs muted">Q<%= i + 1 %></span>
+                <span class="badge <%= ans && ans.isCorrect ? 'badge-success' : ans && ans.selected !== null ? 'badge-danger' : 'badge-neutral' %>">
+                  <%= ans && ans.isCorrect ? 'Correct' : ans && ans.selected !== null ? 'Incorrect' : 'Skipped' %>
+                </span>
+              </div>
+              <div class="q-text" style="font-size:15px;margin-bottom:8px"><%= q.text %></div>
+              <% ['A','B','C','D'].forEach(function(l, oi) { %>
+                <% var ocls = 'review-opt '; if (oi === q.correctOption) ocls += 'is-correct '; if (ans && oi === ans.selected && !ans.isCorrect) ocls += 'user-wrong '; %>
+                <div class="<%= ocls %>"><%= l %>. <%= q.options[oi] %></div>
+              <% }) %>
+              <% if (q.explanation) { %><div class="explanation"><b>Explanation:</b> <%= q.explanation %></div><% } %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } else { %>
+      <% if (codingProblem) { %>
+        <div class="card mb-4">
+          <div class="card-body flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="badge badge-warning">Coding</span>
+              <h3 style="font-size:16px" class="mt-1"><%= codingProblem.title %></h3>
+              <p class="small muted">Extra coding challenge for today.</p>
+            </div>
+            <a href="/coding/<%= codingProblem.slug %>" class="btn btn-outline">Open Problem</a>
+          </div>
+        </div>
+      <% } %>
+
+      <form id="dailyForm" class="card">
+        <div class="card-header"><h2>Answer <%= questions.length %> Questions</h2></div>
+        <div class="card-body">
+          <% questions.forEach(function(q, i) { %>
+            <div class="review-item">
+              <div class="flex items-center justify-between mb-1">
+                <span class="xs muted">Q<%= i + 1 %> · <%= q.subject ? q.subject.name : '' %></span>
+                <span class="badge badge-neutral"><%= q.topic ? q.topic.name : '' %></span>
+              </div>
+              <div class="q-text" style="font-size:15px;margin-bottom:10px"><%= q.text %></div>
+              <div class="grid grid-2" style="gap:8px">
+                <% ['A','B','C','D'].forEach(function(l, oi) { %>
+                  <label class="q-option" style="margin-bottom:0">
+                    <input type="radio" name="q_<%= String(q._id) %>" value="<%= oi %>" style="display:none">
+                    <span class="opt-label"><%= l %>.</span><span><%= q.options[oi] %></span>
+                  </label>
+                <% }) %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="dailySubmit">Submit Challenge</button>
+        </div>
+      </form>
+    <% } %>
+
+    <% if (past.length) { %>
+      <div class="card mt-4">
+        <div class="card-header"><h2>Past Challenges</h2></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Score</th><th>Accuracy</th><th>Time</th></tr></thead>
+            <tbody>
+              <% past.forEach(function(p) { %>
+                <tr>
+                  <td><%= p.challenge ? p.challenge.date : '—' %></td>
+                  <td class="fw-600"><%= p.score %> / <%= p.answers.length %></td>
+                  <td><%= p.accuracy %>%</td>
+                  <td class="muted"><%= formatTime(p.timeTaken) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<script>
+(function () {
+  var form = document.getElementById('dailyForm');
+  if (!form) return;
+  var questions = <%- JSON.stringify(questions.map(function(q) { return String(q._id); })) %>;
+  var startedAt = Date.now();
+
+  function selectOption(label) {
+    var input = label.querySelector('input[type=radio]');
+    if (!input) return;
+    input.checked = true;
+    var container = label.parentElement;
+    container.querySelectorAll('.q-option').forEach(function(o) { o.classList.remove('selected'); });
+    label.classList.add('selected');
+  }
+
+  form.querySelectorAll('.q-option').forEach(function(o) {
+    o.addEventListener('click', function() { selectOption(o); });
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var payload = {};
+    questions.forEach(function(id) {
+      var sel = form.querySelector('input[name="q_' + id + '"]:checked');
+      payload[id] = sel ? parseInt(sel.value, 10) : null;
+    });
+    var btn = document.getElementById('dailySubmit');
+    btn.disabled = true; btn.textContent = 'Submitting...';
+    fetch('/api/daily/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers: payload, timeTaken: Math.round((Date.now() - startedAt) / 1000) })
+    }).then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.error) { alert(d.error); btn.disabled = false; btn.textContent = 'Submit Challenge'; return; }
+        window.location.reload();
+      })
+      .catch(function() { btn.disabled = false; btn.textContent = 'Submit Challenge'; });
+  });
+})();
+</script>
+<%- include('../partials/footer') %>

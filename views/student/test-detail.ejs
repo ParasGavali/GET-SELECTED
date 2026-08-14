@@ -1,0 +1,90 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main" style="max-width:860px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1><%= test.title %></h1>
+      <p><%= test.description %></p>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:24px">
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--primary-light);color:var(--primary)"><i data-lucide="list"></i></span>
+        <div><div class="stat-value"><%= totalQuestions %></div><div class="stat-label">Questions</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--warning-light);color:var(--warning)"><i data-lucide="clock"></i></span>
+        <div><div class="stat-value"><%= test.durationMinutes %> min</div><div class="stat-label">Duration</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header"><h2>Test Details</h2></div>
+      <div class="card-body">
+        <div class="chip-list">
+          <span class="chip">Type: <%= labels[test.type] %></span>
+          <% if (test.subject) { %><span class="chip">Subject: <%= test.subject.name %></span><% } %>
+          <% if (test.company) { %><span class="chip">Company: <%= test.company.name %></span><% } %>
+          <span class="chip"><%= test.negativeMarking ? 'Negative marking' : 'No negative marking' %></span>
+          <span class="chip"><%= test.randomization ? 'Questions shuffled' : 'Fixed order' %></span>
+          <% if (test.maxAttempts > 0) { %><span class="chip">Max attempts: <%= test.maxAttempts %></span><% } %>
+          <span class="chip"><%= attemptCount %> students attempted</span>
+        </div>
+
+        <% if (test.sections.length > 1) { %>
+          <h3 style="font-size:15px" class="mt-3 mb-2">Sections</h3>
+          <table class="table">
+            <thead><tr><th>Section</th><th>Questions</th><th>Marks/Question</th><th>Negative</th></tr></thead>
+            <tbody>
+              <% test.sections.forEach(function(s) { %>
+                <tr>
+                  <td class="fw-600"><%= s.name %></td>
+                  <td><%= s.questions.length %></td>
+                  <td><%= s.marksPerQuestion %></td>
+                  <td><%= test.negativeMarking ? s.negativePerQuestion : '—' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+
+        <% if (test.instructions) { %>
+          <div class="alert alert-info mt-3"><%= test.instructions %></div>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+      <form action="/tests/<%= test._id %>/start" method="POST">
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Start Test</button>
+      </form>
+    <% } else { %>
+      <div class="alert alert-info">Log in to start this test. <a href="/login?next=/tests/<%= test.slug %>">Log in</a> or <a href="/signup">create a free account</a>.</div>
+    <% } %>
+
+    <% if (recentAttempts.length) { %>
+      <div class="card mt-4">
+        <div class="card-header"><h2>My attempts</h2><a href="/tests/history" class="btn-link btn-sm">All history</a></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Score</th><th>Accuracy</th><th>Percentile</th><th>Rank</th><th></th></tr></thead>
+            <tbody>
+              <% recentAttempts.forEach(function(a) { %>
+                <tr>
+                  <td class="muted"><%= formatDate(a.submittedAt) %></td>
+                  <td class="fw-600"><%= a.score %> / <%= a.maxScore %></td>
+                  <td><%= a.accuracy %>%</td>
+                  <td><%= a.percentile !== null ? a.percentile + '%' : '—' %></td>
+                  <td><%= a.rank ? a.rank : '—' %></td>
+                  <td><a href="/tests/<%= test.slug %>/result/<%= a._id %>" class="btn-link btn-sm">View</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

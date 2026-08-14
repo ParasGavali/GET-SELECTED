@@ -1,0 +1,76 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1>Questions</h1>
+          <p><%= total %> total questions</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/admin/import" class="btn btn-outline">Bulk Import</a>
+          <a href="/admin/questions/new" class="btn btn-primary">+ New Question</a>
+        </div>
+      </div>
+    </div>
+
+    <form action="/admin/questions" method="GET" class="card" style="margin-bottom:24px">
+      <div class="filter-bar">
+        <div class="form-group"><label>Search</label><input type="text" name="q" class="form-control" placeholder="Search text or tag..." value="<%= filters.q %>"></div>
+        <div class="form-group"><label>Subject</label>
+          <select name="subject" class="form-control">
+            <option value="">All</option>
+            <% subjects.forEach(function(s) { %>
+              <option value="<%= String(s._id) %>" <%= filters.subject === String(s._id) ? 'selected' : '' %>><%= s.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group"><label>Difficulty</label>
+          <select name="difficulty" class="form-control">
+            <option value="">All</option>
+            <% ['easy','medium','hard'].forEach(function(d) { %>
+              <option value="<%= d %>" <%= filters.difficulty === d ? 'selected' : '' %>><%= d %></option>
+            <% }) %>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </form>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th style="width:38%">Question</th><th>Subject</th><th>Topic</th><th>Type</th><th>Difficulty</th><th>Active</th><th style="width:120px"></th></tr></thead>
+          <tbody>
+            <% questions.forEach(function(q) { %>
+              <tr>
+                <td><div style="font-size:13.5px;max-width:520px"><%= q.text.length > 110 ? q.text.slice(0, 110) + '...' : q.text %></div></td>
+                <td class="small"><%= q.subject ? q.subject.name : '—' %></td>
+                <td class="small"><%= q.topic ? q.topic.name : '—' %></td>
+                <td><span class="badge badge-neutral"><%= q.type %></span></td>
+                <td><span class="badge badge-<%= q.difficulty === 'easy' ? 'success' : q.difficulty === 'medium' ? 'warning' : 'danger' %>"><%= q.difficulty %></span></td>
+                <td>
+                  <form action="/admin/questions/<%= String(q._id) %>/toggle" method="POST" style="display:inline">
+                    <button type="submit" class="btn-link btn-sm"><%= q.isActive ? 'Active' : 'Inactive' %></button>
+                  </form>
+                </td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <a href="/admin/questions/<%= String(q._id) %>/edit" class="btn btn-ghost btn-sm" title="Edit"><i data-lucide="pencil" style="width:14px;height:14px"></i></a>
+                    <form action="/admin/questions/<%= String(q._id) %>/delete" method="POST" data-confirm="Delete this question? This cannot be undone." style="display:inline">
+                      <button type="submit" class="btn btn-ghost btn-sm btn-danger-text" title="Delete"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (!questions.length) { %><tr><td colspan="7" class="muted small" style="text-align:center;padding:32px">No questions match the filters.</td></tr><% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

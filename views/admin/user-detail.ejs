@@ -1,0 +1,53 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:900px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <span class="avatar" style="width:48px;height:48px;font-size:18px;background:<%= user.avatarColor || '#4f46e5' %>"><%= user.name.charAt(0).toUpperCase() %></span>
+          <div>
+            <h1><%= user.name %></h1>
+            <p class="small muted"><%= user.email %> · Joined <%= formatDate(user.createdAt) %></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="badge <%= user.isActive ? 'badge-success' : 'badge-danger' %>"><%= user.isActive ? 'Active' : 'Suspended' %></span>
+          <form action="/admin/users/<%= String(user._id) %>/toggle" method="POST" data-confirm="<%= user.isActive ? 'Suspend' : 'Reactivate' %> this account?">
+            <button type="submit" class="btn btn-outline btn-sm"><%= user.isActive ? 'Suspend' : 'Reactivate' %></button>
+          </form>
+          <a href="/admin/users" class="btn btn-ghost btn-sm">← Back</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+      <div class="stat-card"><div class="stat-value"><%= attempts.length %></div><div class="stat-label">Tests Taken</div></div>
+      <div class="stat-card"><div class="stat-value"><%= questionsSolved %></div><div class="stat-label">Questions Solved</div></div>
+      <div class="stat-card"><div class="stat-value"><%= user.college || '—' %></div><div class="stat-label">College</div></div>
+      <div class="stat-card"><div class="stat-value"><%= user.branch || '—' %></div><div class="stat-label">Branch</div></div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header"><h2>Recent Test Attempts</h2></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Test</th><th>Score</th><th>Percentile</th><th>Submitted</th></tr></thead>
+          <tbody>
+            <% attempts.forEach(function(a) { %>
+              <tr>
+                <td><a href="/tests/<%= a.test ? a.test.slug : '#' %>"><%= a.test ? a.test.title : 'Deleted test' %></a></td>
+                <td class="fw-600"><%= a.score %> / <%= a.maxScore %></td>
+                <td><%= a.percentile != null ? a.percentile + 'th' : '—' %></td>
+                <td class="small muted"><%= formatDate(a.submittedAt) %></td>
+              </tr>
+            <% }) %>
+            <% if (!attempts.length) { %><tr><td colspan="4" class="muted small" style="text-align:center;padding:32px">No test attempts yet.</td></tr><% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

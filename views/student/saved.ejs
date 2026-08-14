@@ -1,0 +1,68 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Saved</h1>
+      <p>Your bookmarked questions, coding problems and tests.</p>
+    </div>
+
+    <% if (!questions.length && !coding.length && !tests.length) { %>
+      <div class="card">
+        <div class="empty-state">
+          <i data-lucide="bookmark"></i>
+          <h3>Nothing saved yet</h3>
+          <p>Bookmark questions, coding problems and tests to find them here.</p>
+          <a href="/practice" class="btn btn-primary mt-2">Start Practicing</a>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (questions.length) { %>
+      <h2 style="font-size:16px" class="mb-2">Questions (<%= questions.length %>)</h2>
+      <div class="grid grid-2 mb-4">
+        <% questions.forEach(function(q) { %>
+          <div class="card card-body">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="badge badge-info"><%= q.subject ? q.subject.name : '' %></span>
+              <span class="badge badge-neutral"><%= q.topic ? q.topic.name : '' %></span>
+            </div>
+            <p style="font-size:14px"><%= q.text %></p>
+            <button class="btn-link btn-sm mt-1" data-bookmark data-item-type="question" data-item-id="<%= String(q._id) %>"><i data-lucide="bookmark" fill="currentColor"></i> Remove</button>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (coding.length) { %>
+      <h2 style="font-size:16px" class="mb-2">Coding Problems (<%= coding.length %>)</h2>
+      <div class="grid grid-3 mb-4">
+        <% coding.forEach(function(p) { %>
+          <a href="/coding/<%= p.slug %>" class="card test-card">
+            <span class="badge badge-warning"><%= p.difficulty %></span>
+            <h3><%= p.title %></h3>
+            <div class="test-meta"><span><i data-lucide="tag"></i> <%= p.category %></span></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (tests.length) { %>
+      <h2 style="font-size:16px" class="mb-2">Tests (<%= tests.length %>)</h2>
+      <div class="grid grid-3 mb-4">
+        <% tests.forEach(function(t) { %>
+          <a href="/tests/<%= t.slug %>" class="card test-card">
+            <div class="flex items-center justify-between">
+              <span class="badge badge-primary"><%= t.type.replace(/_/g, ' ') %></span>
+              <% if (t.company) { %><span class="badge badge-neutral"><%= t.company.name %></span><% } %>
+            </div>
+            <h3><%= t.title %></h3>
+            <div class="test-meta"><span><i data-lucide="clock"></i> <%= t.durationMinutes %> min</span></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

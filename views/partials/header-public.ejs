@@ -1,0 +1,24 @@
+<header class="navbar">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="/" class="navbar-brand">
+        <span class="brand-mark"><i data-lucide="trophy"></i></span>
+        <span><%= appName %></span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <nav class="navbar-links" data-nav-links>
+        <a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+        <a href="/practice" class="nav-link <%= currentPath === '/practice' ? 'active' : '' %>">Practice</a>
+        <a href="/tests" class="nav-link <%= currentPath === '/tests' ? 'active' : '' %>">Tests</a>
+        <a href="/companies" class="nav-link <%= currentPath === '/companies' ? 'active' : '' %>">Companies</a>
+        <a href="/coding" class="nav-link <%= currentPath === '/coding' ? 'active' : '' %>">Coding</a>
+        <a href="/leaderboard" class="nav-link <%= currentPath === '/leaderboard' ? 'active' : '' %>">Leaderboard</a>
+        <a href="/about" class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">About</a>
+        <a href="/login" class="nav-link">Login</a>
+        <a href="/signup" class="btn btn-primary btn-sm" style="margin-left:6px">Sign Up Free</a>
+      </nav>
+    </div>
+  </div>
+</header>

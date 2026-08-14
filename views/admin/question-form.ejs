@@ -1,0 +1,133 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:860px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1><%= question ? 'Edit Question' : 'New Question' %></h1>
+          <p>Fields marked * are required.</p>
+        </div>
+        <a href="/admin/questions" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+    </div>
+
+    <form action="/admin/questions/<%= question ? String(question._id) : '' %>" method="POST" class="card">
+      <div class="card-body" style="display:grid;gap:18px">
+        <div class="form-group">
+          <label>Question text *</label>
+          <textarea name="text" class="form-control" rows="3" required><%= question ? question.text : '' %></textarea>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Subject *</label>
+            <select name="subject" class="form-control" required>
+              <option value="">Select subject</option>
+              <% subjects.forEach(function(s) { %>
+                <option value="<%= String(s._id) %>" <%= question && String(question.subject) === String(s._id) ? 'selected' : '' %>><%= s.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Topic *</label>
+            <select name="topic" class="form-control" required>
+              <option value="">Select topic</option>
+              <% topics.forEach(function(t) { %>
+                <option value="<%= String(t._id) %>" <%= question && String(question.topic) === String(t._id) ? 'selected' : '' %>><%= t.name %><%= t.subject ? ' (' + t.subject.name + ')' : '' %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label>Type</label>
+            <select name="type" class="form-control">
+              <option value="mcq" <%= !question || question.type === 'mcq' ? 'selected' : '' %>>MCQ</option>
+              <option value="sql" <%= question && question.type === 'sql' ? 'selected' : '' %>>SQL</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Difficulty</label>
+            <select name="difficulty" class="form-control">
+              <% ['easy','medium','hard'].forEach(function(d) { %>
+                <option value="<%= d %>" <%= (!question && d === 'medium') || (question && question.difficulty === d) ? 'selected' : '' %>><%= d %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estimated time (sec)</label>
+            <input type="number" name="estimatedTime" class="form-control" value="<%= question ? question.estimatedTime : 60 %>" min="10" max="600">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Subtopic</label>
+          <input type="text" name="subtopic" class="form-control" placeholder="e.g. Number Series" value="<%= question ? question.subtopic : '' %>">
+        </div>
+
+        <div style="display:grid;gap:12px">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label>Option A *</label>
+              <div class="flex items-center gap-2">
+                <input type="text" name="option_a" class="form-control" required value="<%= question ? question.options[0] : '' %>">
+                <input type="radio" name="correctOption" value="0" <%= question && question.correctOption === 0 ? 'checked' : (!question ? 'checked' : '') %> title="Correct">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Option B *</label>
+              <div class="flex items-center gap-2">
+                <input type="text" name="option_b" class="form-control" required value="<%= question ? question.options[1] : '' %>">
+                <input type="radio" name="correctOption" value="1" <%= question && question.correctOption === 1 ? 'checked' : '' %> title="Correct">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Option C *</label>
+              <div class="flex items-center gap-2">
+                <input type="text" name="option_c" class="form-control" required value="<%= question ? question.options[2] : '' %>">
+                <input type="radio" name="correctOption" value="2" <%= question && question.correctOption === 2 ? 'checked' : '' %> title="Correct">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Option D *</label>
+              <div class="flex items-center gap-2">
+                <input type="text" name="option_d" class="form-control" required value="<%= question ? question.options[3] : '' %>">
+                <input type="radio" name="correctOption" value="3" <%= question && question.correctOption === 3 ? 'checked' : '' %> title="Correct">
+              </div>
+            </div>
+          </div>
+          <p class="xs muted">Select the radio button next to the correct option.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Explanation *</label>
+          <textarea name="explanation" class="form-control" rows="3" required><%= question ? question.explanation : '' %></textarea>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Tags (comma separated)</label>
+            <input type="text" name="tags" class="form-control" placeholder="numbers, series" value="<%= question ? (question.tags || []).join(', ') : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Companies (comma separated names)</label>
+            <input type="text" name="companies" class="form-control" placeholder="TCS, Infosys" value="<%= question && question.companies ? question.companies.join(', ') : '' %>">
+          </div>
+        </div>
+
+        <label class="checkbox-line">
+          <input type="checkbox" name="isActive" <%= !question || question.isActive ? 'checked' : '' %>>
+          <span>Active (visible in practice and tests)</span>
+        </label>
+      </div>
+      <div class="card-footer">
+        <a href="/admin/questions" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary"><%= question ? 'Save Changes' : 'Create Question' %></button>
+      </div>
+    </form>
+  </div>
+</main>
+<%- include('../partials/footer') %>

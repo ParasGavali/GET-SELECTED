@@ -1,0 +1,29 @@
+<header class="navbar admin-nav">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="/admin" class="navbar-brand">
+        <span class="brand-mark"><i data-lucide="shield"></i></span>
+        <span><%= appName %> Admin</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Toggle menu">
+        <i data-lucide="menu"></i>
+      </button>
+      <nav class="navbar-links" data-nav-links>
+        <a href="/admin" class="nav-link <%= currentPath === '/admin' ? 'active' : '' %>">Dashboard</a>
+        <a href="/admin/questions" class="nav-link <%= currentPath.startsWith('/admin/questions') ? 'active' : '' %>">Questions</a>
+        <a href="/admin/tests" class="nav-link <%= currentPath.startsWith('/admin/tests') ? 'active' : '' %>">Tests</a>
+        <a href="/admin/companies" class="nav-link <%= currentPath.startsWith('/admin/companies') ? 'active' : '' %>">Companies</a>
+        <a href="/admin/coding" class="nav-link <%= currentPath.startsWith('/admin/coding') ? 'active' : '' %>">Coding</a>
+        <a href="/admin/users" class="nav-link <%= currentPath.startsWith('/admin/users') ? 'active' : '' %>">Users</a>
+        <a href="/admin/daily" class="nav-link <%= currentPath.startsWith('/admin/daily') ? 'active' : '' %>">Daily</a>
+        <a href="/admin/import" class="nav-link <%= currentPath.startsWith('/admin/import') ? 'active' : '' %>">Import</a>
+      </nav>
+      <div class="navbar-actions">
+        <a href="/dashboard" class="nav-link" title="View site"><i data-lucide="external-link" style="width:16px;height:16px"></i><span class="hide-mobile">View site</span></a>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-ghost btn-sm"><i data-lucide="log-out" style="width:15px;height:15px"></i><span class="hide-mobile">Logout</span></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>

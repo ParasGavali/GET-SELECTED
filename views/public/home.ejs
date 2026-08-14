@@ -1,0 +1,160 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-public') %>
+<main>
+  <div class="container" style="max-width:860px">
+    <%- include('../partials/flash') %>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-badge"><i data-lucide="sparkles" style="width:15px;height:15px"></i> 100% free · Built for engineering students</div>
+        <h1><span class="grad">GET SELECTED</span></h1>
+        <p class="tagline"><%= appTagline %></p>
+        <p class="sub">A completely free placement preparation platform built for engineering students. Practice every section, take mock tests, track your percentile and improve with AI-powered analysis.</p>
+        <div class="hero-cta">
+          <a href="/signup" class="btn btn-primary btn-lg">Start Preparing Free</a>
+          <a href="/tests" class="btn btn-light btn-lg">Explore Tests</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><b><%= stats.qCount + stats.codeCount %></b><span>Questions & Problems</span></div>
+          <div class="hero-stat"><b><%= stats.attemptCount %></b><span>Tests Completed</span></div>
+          <div class="hero-stat"><b><%= stats.userCount %></b><span>Students Preparing</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBJECTS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head sub">
+        <div>
+          <h2>Practice every section</h2>
+          <p>Everything a placement test asks, in one place.</p>
+        </div>
+        <a href="/practice" class="btn btn-outline btn-sm">Start Practicing</a>
+      </div>
+      <div class="grid grid-3">
+        <% subjects.forEach(function(s) { %>
+          <a href="/practice?subject=<%= s.slug %>" class="card subject-card">
+            <div class="flex items-center gap-3">
+              <span class="subject-icon" style="background:<%= s.color %>"><i data-lucide="<%= s.icon %>"></i></span>
+              <div>
+                <h3><%= s.name %></h3>
+                <div class="meta"><%= (subjectTopicMap[s._id] || []).length %> topics</div>
+              </div>
+            </div>
+            <p class="small muted"><%= s.description %></p>
+            <div class="subject-topics">
+              <% (subjectTopicMap[s._id] || []).slice(0, 4).forEach(function(t) { %>
+                <a href="/practice?subject=<%= s.slug %>&topic=<%= t.slug %>" class="topic-pill"><%= t.name %></a>
+              <% }) %>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED TESTS -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-head sub">
+        <div>
+          <h2>Featured tests & mocks</h2>
+          <p>Quick quizzes to full company-style mocks.</p>
+        </div>
+        <a href="/tests" class="btn btn-outline btn-sm">All Tests</a>
+      </div>
+      <div class="grid grid-3">
+        <% featuredTests.forEach(function(t) { %>
+          <a href="/tests/<%= t.slug %>" class="card test-card">
+            <div class="flex items-center justify-between">
+              <span class="badge badge-primary"><%= t.type.replace(/_/g, ' ') %></span>
+              <% if (t.company) { %><span class="badge badge-neutral"><%= t.company.name %></span><% } %>
+            </div>
+            <h3><%= t.title %></h3>
+            <p class="desc"><%= t.description %></p>
+            <div class="test-meta">
+              <span><i data-lucide="clock"></i> <%= t.durationMinutes %> min</span>
+              <span><i data-lucide="list"></i> <%= t.sections.reduce(function(a, s) { return a + s.questions.length; }, 0) %> Qs</span>
+            </div>
+            <span class="btn btn-primary btn-sm" style="align-self:flex-start">Start Test</span>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-head text-center">
+        <h2>How it works</h2>
+        <p>The placement preparation loop that actually works.</p>
+      </div>
+      <div class="grid grid-4">
+        <div class="card card-body text-center">
+          <div class="stat-icon" style="margin:0 auto 12px;background:var(--primary-light);color:var(--primary)"><i data-lucide="target"></i></div>
+          <h3 style="font-size:15px">Practice</h3>
+          <p class="small muted mt-1">Pick a subject and topic, solve questions with instant explanations.</p>
+        </div>
+        <div class="card card-body text-center">
+          <div class="stat-icon" style="margin:0 auto 12px;background:var(--success-light);color:var(--success)"><i data-lucide="timer"></i></div>
+          <h3 style="font-size:15px">Test</h3>
+          <p class="small muted mt-1">Take timed quizzes, sectionals and full mocks.</p>
+        </div>
+        <div class="card card-body text-center">
+          <div class="stat-icon" style="margin:0 auto 12px;background:var(--warning-light);color:var(--warning)"><i data-lucide="bar-chart-3"></i></div>
+          <h3 style="font-size:15px">Analyze</h3>
+          <p class="small muted mt-1">See scores, percentiles, weak topics and AI analysis.</p>
+        </div>
+        <div class="card card-body text-center">
+          <div class="stat-icon" style="margin:0 auto 12px;background:var(--info-light);color:var(--info)"><i data-lucide="trending-up"></i></div>
+          <h3 style="font-size:15px">Improve</h3>
+          <p class="small muted mt-1">Fix weak topics, climb the leaderboard, repeat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPANIES -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-head sub">
+        <div>
+          <h2>Prepare by company</h2>
+          <p>Dedicated preparation and mocks for major recruiters.</p>
+        </div>
+        <a href="/companies" class="btn btn-outline btn-sm">All Companies</a>
+      </div>
+      <div class="grid grid-3">
+        <% companies.forEach(function(c) { %>
+          <a href="/companies/<%= c.slug %>" class="card company-card">
+            <span class="company-logo" style="background:<%= c.color %>"><%= c.shortName ? c.shortName.slice(0, 2).toUpperCase() : c.name.slice(0, 2).toUpperCase() %></span>
+            <div>
+              <h3><%= c.name %></h3>
+              <div class="meta small">Prepare & practice</div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="card" style="background:linear-gradient(120deg,#4f46e5,#3730a3);border:none;padding:48px 32px;text-align:center;color:#fff">
+        <h2 style="color:#fff;font-size:26px">Ready to get selected?</h2>
+        <p style="color:#c7d2fe;margin-top:8px">Join for free. Every feature, every test, every problem - no paywall, no premium.</p>
+        <div style="margin-top:24px">
+          <a href="/signup" class="btn btn-lg" style="background:#fff;color:#4f46e5">Create Free Account</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>

@@ -1,0 +1,56 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Leaderboard</h1>
+      <p>Real rankings based on actual test performance. Every point is earned.</p>
+    </div>
+
+    <div class="leaderboard-tabs">
+      <button class="btn btn-primary btn-sm" data-tab="overall">Overall</button>
+      <button class="btn btn-outline btn-sm" data-tab="monthly">Monthly</button>
+      <button class="btn btn-outline btn-sm" data-tab="weekly">Weekly</button>
+    </div>
+
+    <% [['overall', overall, 'All-time rankings by total test score.'], ['monthly', monthly, 'Last 30 days.'], ['weekly', weekly, 'Last 7 days.']].forEach(function(spec) { %>
+      <div data-tab-panel="<%= spec[0] %>" style="display:<%= spec[0] === 'overall' ? '' : 'none' %>">
+        <div class="card">
+          <div class="card-header">
+            <h2><%= spec[0].charAt(0).toUpperCase() + spec[0].slice(1) %> Leaderboard</h2>
+            <span class="small muted"><%= spec[2] %></span>
+          </div>
+          <div class="table-wrap">
+            <% if (spec[1].list.length) { %>
+              <table class="table lb-table">
+                <thead><tr><th>Rank</th><th>Student</th><th class="text-right">Points</th><th class="text-right">Tests</th><th class="text-right">Avg Accuracy</th></tr></thead>
+                <tbody>
+                  <% spec[1].list.slice(0, 50).forEach(function(r, i) { %>
+                    <tr class="<%= spec[1].me && String(r.user) === String(spec[1].me.user) ? 'lb-row-me' : '' %>">
+                      <td class="rank <%= i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '' %>"><%= i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : i + 1 %></td>
+                      <td>
+                        <div class="flex items-center gap-2">
+                          <span class="avatar" style="width:32px;height:32px;font-size:13px;background:<%= r.name ? '#4f46e5' : '#64748b' %>"><%= r.name ? r.name.charAt(0).toUpperCase() : '?' %></span>
+                          <span class="fw-600"><%= r.name %></span>
+                          <% if (i === 0) { %><span class="badge badge-warning"><i data-lucide="crown" style="width:12px;height:12px"></i> Top</span><% } %>
+                          <% if (spec[1].me && String(r.user) === String(spec[1].me.user)) { %><span class="badge badge-primary">You</span><% } %>
+                        </div>
+                      </td>
+                      <td class="text-right fw-700"><%= Math.round(r.points) %></td>
+                      <td class="text-right"><%= r.tests %></td>
+                      <td class="text-right"><%= Math.round(r.avgAccuracy || 0) %>%</td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <div class="empty-state"><i data-lucide="medal"></i><h3>No rankings yet</h3><p>Complete a test to appear here.</p></div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

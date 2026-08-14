@@ -1,0 +1,61 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Students</h1>
+      <p>Manage registered students.</p>
+    </div>
+
+    <form action="/admin/users" method="GET" class="card" style="margin-bottom:24px">
+      <div class="filter-bar">
+        <div class="form-group" style="flex:1"><label>Search</label><input type="text" name="q" class="form-control" placeholder="Name, email or college..." value="<%= filters.q %>"></div>
+        <div class="form-group"><label>Status</label>
+          <select name="status" class="form-control">
+            <option value="">All</option>
+            <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>>Active</option>
+            <option value="suspended" <%= filters.status === 'suspended' ? 'selected' : '' %>>Suspended</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </form>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Student</th><th>College</th><th>Tests</th><th>Joined</th><th>Status</th><th style="width:130px"></th></tr></thead>
+          <tbody>
+            <% users.forEach(function(u) { %>
+              <tr>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <span class="avatar" style="background:<%= u.avatarColor || '#4f46e5' %>"><%= u.name.charAt(0).toUpperCase() %></span>
+                    <div><b style="font-size:13.5px"><%= u.name %></b><div class="xs muted"><%= u.email %></div></div>
+                  </div>
+                </td>
+                <td class="small"><%= u.college || '—' %></td>
+                <td class="small"><%= countMap.get(String(u._id)) || 0 %></td>
+                <td class="small muted"><%= formatDate(u.createdAt) %></td>
+                <td><span class="badge <%= u.isActive ? 'badge-success' : 'badge-danger' %>"><%= u.isActive ? 'Active' : 'Suspended' %></span></td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <a href="/admin/users/<%= String(u._id) %>" class="btn btn-ghost btn-sm" title="View"><i data-lucide="eye" style="width:14px;height:14px"></i></a>
+                    <form action="/admin/users/<%= String(u._id) %>/toggle" method="POST" data-confirm="<%= u.isActive ? 'Suspend' : 'Reactivate' %> this account?" style="display:inline">
+                      <button type="submit" class="btn btn-ghost btn-sm <%= u.isActive ? 'btn-danger-text' : '' %>" title="<%= u.isActive ? 'Suspend' : 'Reactivate' %>">
+                        <i data-lucide="<%= u.isActive ? 'user-x' : 'user-check' %>" style="width:14px;height:14px"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (!users.length) { %><tr><td colspan="6" class="muted small" style="text-align:center;padding:32px">No students found.</td></tr><% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

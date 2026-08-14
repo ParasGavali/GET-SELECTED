@@ -1,0 +1,47 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Test History</h1>
+      <p>Every test you have completed, with real scores, percentiles and ranks.</p>
+    </div>
+
+    <% if (!attempts.length) { %>
+      <div class="card">
+        <div class="empty-state">
+          <i data-lucide="history"></i>
+          <h3>No tests completed yet</h3>
+          <p>Take your first test to start building your preparation history.</p>
+          <a href="/tests" class="btn btn-primary mt-2">Browse Tests</a>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr><th>Test</th><th>Date</th><th>Score</th><th>Accuracy</th><th>Time</th><th>Percentile</th><th>Rank</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% attempts.forEach(function(a) { %>
+                <tr>
+                  <td class="fw-600"><%= a.test ? a.test.title : 'Test' %></td>
+                  <td class="muted"><%= formatDate(a.submittedAt) %></td>
+                  <td class="fw-600"><%= a.score %> / <%= a.maxScore %></td>
+                  <td><%= a.accuracy %>%</td>
+                  <td class="muted"><%= formatTime(a.timeTaken) %></td>
+                  <td><%= a.percentile !== null ? a.percentile + '%' : '—' %></td>
+                  <td><%= a.rank ? '#' + a.rank : '—' %></td>
+                  <td><a href="/tests/<%= a.test ? a.test.slug : '' %>/result/<%= a._id %>" class="btn-link">View Result</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

@@ -1,0 +1,73 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:760px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1><%= company ? 'Edit Company' : 'New Company' %></h1>
+          <p>Company profile shown on the Companies page.</p>
+        </div>
+        <a href="/admin/companies" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+    </div>
+
+    <form action="/admin/companies/<%= company ? String(company._id) : '' %>" method="POST" class="card">
+      <div class="card-body" style="display:grid;gap:18px">
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" name="name" class="form-control" required value="<%= company ? company.name : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Slug (optional)</label>
+            <input type="text" name="slug" class="form-control" placeholder="auto from name" value="<%= company ? company.slug : '' %>">
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Short name</label>
+            <input type="text" name="shortName" class="form-control" placeholder="e.g. TCS" value="<%= company ? company.shortName : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Logo color</label>
+            <input type="color" name="color" class="form-control" value="<%= company ? company.color : '#334155' %>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="form-control" rows="3"><%= company ? company.description : '' %></textarea>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Tags (comma separated)</label>
+            <input type="text" name="tags" class="form-control" placeholder="IT services, WITCH" value="<%= company ? (company.tags || []).join(', ') : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Focus areas (comma separated)</label>
+            <input type="text" name="focusAreas" class="form-control" placeholder="Aptitude, Verbal, DSA" value="<%= company ? (company.focusAreas || []).join(', ') : '' %>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Order</label>
+          <input type="number" name="order" class="form-control" value="<%= company ? company.order : 0 %>">
+        </div>
+
+        <label class="checkbox-line">
+          <input type="checkbox" name="isActive" <%= !company || company.isActive ? 'checked' : '' %>>
+          <span>Active</span>
+        </label>
+      </div>
+      <div class="card-footer">
+        <a href="/admin/companies" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary"><%= company ? 'Save Changes' : 'Create Company' %></button>
+      </div>
+    </form>
+  </div>
+</main>
+<%- include('../partials/footer') %>

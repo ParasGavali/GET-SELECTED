@@ -1,0 +1,10 @@
+<% if (typeof flashMessages !== 'undefined' && flashMessages.length) { %>
+  <% flashMessages.forEach(function(f) { %>
+    <div class="alert alert-<%= f.type === 'success' ? 'success' : f.type === 'error' ? 'error' : f.type === 'warning' ? 'warning' : 'info' %>">
+      <div class="flex items-center gap-2" style="flex:1">
+        <span><%= f.message %></span>
+      </div>
+      <button type="button" class="btn-link" data-dismiss aria-label="Dismiss">✕</button>
+    </div>
+  <% }) %>
+<% } %>

@@ -1,0 +1,127 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:900px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1><%= problem ? 'Edit Coding Problem' : 'New Coding Problem' %></h1>
+          <p>Fields marked * are required.</p>
+        </div>
+        <a href="/admin/coding" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+    </div>
+
+    <form action="/admin/coding/<%= problem ? String(problem._id) : '' %>" method="POST" class="card">
+      <div class="card-body" style="display:grid;gap:18px">
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" name="title" class="form-control" required value="<%= problem ? problem.title : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Slug (optional)</label>
+            <input type="text" name="slug" class="form-control" placeholder="auto from title" value="<%= problem ? problem.slug : '' %>">
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category" class="form-control">
+              <% ['programming','dsa','sql'].forEach(function(c) { %>
+                <option value="<%= c %>" <%= (!problem && c === 'dsa') || (problem && problem.category === c) ? 'selected' : '' %>><%= c.toUpperCase() %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Difficulty</label>
+            <select name="difficulty" class="form-control">
+              <% ['easy','medium','hard'].forEach(function(d) { %>
+                <option value="<%= d %>" <%= (!problem && d === 'medium') || (problem && problem.difficulty === d) ? 'selected' : '' %>><%= d %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tags (comma separated)</label>
+            <input type="text" name="tags" class="form-control" placeholder="arrays, strings" value="<%= problem ? (problem.tags || []).join(', ') : '' %>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Problem statement *</label>
+          <textarea name="problemStatement" class="form-control" rows="5" required><%= problem ? problem.problemStatement : '' %></textarea>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 style="font-size:16px">Examples</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="addExample">+ Add Example</button>
+          </div>
+          <div id="examplesWrap" style="display:grid;gap:14px">
+            <% (problem && problem.examples && problem.examples.length ? problem.examples : [{}]).forEach(function(ex, idx) { %>
+              <div class="example-box" style="display:grid;gap:8px;padding:14px;border:1px solid var(--border);border-radius:12px">
+                <div class="grid grid-2">
+                  <div class="form-group"><label>Input</label><textarea name="example_input" class="form-control" rows="1"><%= ex.input || '' %></textarea></div>
+                  <div class="form-group"><label>Output</label><textarea name="example_output" class="form-control" rows="1"><%= ex.output || '' %></textarea></div>
+                </div>
+                <div class="form-group"><label>Explanation</label><textarea name="example_explanation" class="form-control" rows="1"><%= ex.explanation || '' %></textarea></div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Constraints</label>
+          <textarea name="constraints" class="form-control" rows="2"><%= problem ? problem.constraints : '' %></textarea>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Concepts (comma separated)</label>
+            <input type="text" name="concepts" class="form-control" placeholder="two pointers, sliding window" value="<%= problem ? (problem.concepts || []).join(', ') : '' %>">
+          </div>
+          <div class="form-group">
+            <label>Companies</label>
+            <select name="companies" class="form-control" multiple size="4">
+              <% companies.forEach(function(c) { %>
+                <option value="<%= String(c._id) %>" <%= problem && problem.companies && problem.companies.some(function(pc) { return String(pc) === String(c._id); }) ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Explanation</label>
+          <textarea name="explanation" class="form-control" rows="3"><%= problem ? problem.explanation : '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Solution (reference code)</label>
+          <textarea name="solution" class="form-control" rows="6" placeholder="Reference solution shown to students after they attempt"><%= problem ? problem.solution : '' %></textarea>
+        </div>
+
+        <label class="checkbox-line">
+          <input type="checkbox" name="isActive" <%= !problem || problem.isActive ? 'checked' : '' %>>
+          <span>Active</span>
+        </label>
+      </div>
+      <div class="card-footer">
+        <a href="/admin/coding" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary"><%= problem ? 'Save Changes' : 'Create Problem' %></button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  var examplesWrap = document.getElementById('examplesWrap');
+  var exampleTemplate = examplesWrap.querySelector('.example-box').outerHTML.replace(/value=".*?"/g, 'value=""').replace(/>(.*?)<\/textarea>/gs, '></textarea>');
+  document.getElementById('addExample').addEventListener('click', function () {
+    var div = document.createElement('div');
+    div.innerHTML = exampleTemplate;
+    examplesWrap.appendChild(div.firstElementChild);
+  });
+</script>
+<%- include('../partials/footer') %>

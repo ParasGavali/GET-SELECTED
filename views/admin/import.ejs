@@ -1,0 +1,69 @@
+<%- include('../partials/head') %>
+<%- include('partials/header') %>
+<main>
+  <div class="app-main" style="max-width:900px">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1>Bulk Import</h1>
+          <p>Upload a CSV or JSON file to import questions.</p>
+        </div>
+        <a href="/admin/questions" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2>1. Upload File</h2></div>
+      <div class="card-body">
+        <p class="small mb-3">CSV columns: <code>text, subject, topic, options (A|B|C|D), correct (1-4 or A-D), explanation, difficulty (optional), type (mcq|sql)</code>.<br>
+        JSON: an array of objects (or <code>{ questions: [...] }</code>) with the same fields. Subjects must already exist; new topics are auto-created.</p>
+        <form action="/admin/import/preview" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="file" name="file" class="form-control" accept=".csv,.json" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Upload & Preview</button>
+        </form>
+      </div>
+    </div>
+
+    <% if (preview) { %>
+      <div class="alert alert-success">File <b><%= fileId %></b> parsed: <b><%= validCount %></b> valid, <b><%= invalidCount %></b> invalid out of <%= total %> rows.</div>
+      <% if (importErrors && importErrors.length) { %>
+        <div class="alert alert-danger">
+          <b>Validation errors:</b>
+          <ul class="mb-0 mt-1" style="margin-left:18px">
+            <% importErrors.slice(0, 10).forEach(function(e) { %><li class="small"><%= e %></li><% }) %>
+            <% if (importErrors.length > 10) { %><li class="small muted">...and <%= importErrors.length - 10 %> more</li><% } %>
+          </ul>
+        </div>
+      <% } %>
+
+      <div class="card mb-4">
+        <div class="card-header"><h2>2. Preview (first <%= preview.length %> valid rows)</h2></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>#</th><th>Subject</th><th>Topic</th><th>Text</th><th>Correct</th></tr></thead>
+            <tbody>
+              <% preview.forEach(function(row, i) { %>
+                <tr>
+                  <td><%= i + 1 %></td>
+                  <td class="small"><%= row.subject %></td>
+                  <td class="small"><%= row.topic || '—' %></td>
+                  <td class="small"><%= row.text.length > 80 ? row.text.slice(0, 80) + '...' : row.text %></td>
+                  <td class="small"><%= row.options[row.correctOption] %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <form action="/admin/import/confirm" method="POST" data-confirm="Import <%= validCount %> valid questions now?">
+        <button type="submit" class="btn btn-success">Import <%= validCount %> Valid Questions</button>
+        <a href="/admin/import" class="btn btn-outline">Cancel</a>
+      </form>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

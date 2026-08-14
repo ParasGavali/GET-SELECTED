@@ -1,0 +1,86 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main" style="max-width:960px">
+    <%- include('../partials/flash') %>
+    <div class="page-head flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1>AI Performance Analysis</h1>
+        <p>An analysis of your actual preparation data, with actionable next steps.</p>
+      </div>
+      <div class="flex gap-2">
+        <form action="/ai-analysis" method="GET">
+          <input type="hidden" name="refresh" value="1">
+          <button type="submit" class="btn btn-outline btn-sm">Regenerate</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="flex gap-2 mb-4">
+      <% [['overall', 'Overall'], ['monthly', 'Last 30 days'], ['weekly', 'Last 7 days']].forEach(function(p) { %>
+        <a href="/ai-analysis?period=<%= p[0] %>" class="btn btn-sm <%= period === p[0] ? 'btn-primary' : 'btn-outline' %>"><%= p[1] %></a>
+      <% }) %>
+    </div>
+
+    <% if (analysis.isFallback) { %>
+      <div class="alert alert-info">Using the development analysis engine. Connect an AI API key (AI_API_KEY) in your environment for AI-generated insights.</div>
+    <% } %>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2>Summary</h2></div>
+      <div class="card-body"><p style="font-size:15px;line-height:1.7"><%= analysis.summary %></p></div>
+    </div>
+
+    <div class="grid grid-2 mb-4">
+      <div class="card">
+        <div class="card-header"><h2 class="text-success">Strengths</h2></div>
+        <div class="card-body">
+          <% if (analysis.strengths.length) { %>
+            <% analysis.strengths.forEach(function(s) { %>
+              <div class="flex items-start gap-2 mb-2"><span class="badge badge-success">+</span><span style="font-size:14px"><%= s %></span></div>
+            <% }) %>
+          <% } else { %>
+            <p class="small muted">Solve more questions to identify strengths.</p>
+          <% } %>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2 class="text-danger">Areas to Improve</h2></div>
+        <div class="card-body">
+          <% if (analysis.weaknesses.length) { %>
+            <% analysis.weaknesses.forEach(function(w) { %>
+              <div class="flex items-start gap-2 mb-2"><span class="badge badge-danger">!</span><span style="font-size:14px"><%= w %></span></div>
+            <% }) %>
+          <% } else { %>
+            <p class="small muted">No weak areas detected in this period. Great work!</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Recommended Next Steps</h2></div>
+      <div class="card-body" style="display:grid;gap:14px">
+        <% if (analysis.recommendations.length) { %>
+          <% analysis.recommendations.forEach(function(r, i) { %>
+            <a href="<%= r.link || '/practice' %>" class="card" style="display:block;padding:16px;border-color:#e2e8f0">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="stat-icon" style="width:38px;height:38px;background:var(--primary-light);color:var(--primary)"><i data-lucide="<%= r.action === 'test' ? 'timer' : 'book-open' %>"></i></span>
+                  <div>
+                    <div class="fw-700" style="font-size:14.5px"><%= i + 1 %>. <%= r.title %></div>
+                    <div class="small muted"><%= r.description %></div>
+                  </div>
+                </div>
+                <span class="badge badge-<%= r.action === 'test' ? 'warning' : 'primary' %>"><%= r.action %></span>
+              </div>
+            </a>
+          <% }) %>
+        <% } else { %>
+          <p class="small muted">Complete more practice to generate recommendations.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

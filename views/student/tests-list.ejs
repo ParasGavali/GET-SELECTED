@@ -1,0 +1,68 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Tests</h1>
+      <p>Quick quizzes, topic tests, sectionals, full mocks and company tests. Every test is free.</p>
+    </div>
+
+    <form action="/tests" method="GET" class="card" style="margin-bottom:24px">
+      <div class="filter-bar">
+        <div class="form-group">
+          <label>Type</label>
+          <select name="type" class="form-control">
+            <option value="">All Types</option>
+            <% types.forEach(function(t) { %>
+              <option value="<%= t[0] %>" <%= filters.type === t[0] ? 'selected' : '' %>><%= t[1] %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <select name="subject" class="form-control">
+            <option value="">All Subjects</option>
+            <% subjects.forEach(function(s) { %>
+              <option value="<%= s._id %>" <%= filters.subject === String(s._id) ? 'selected' : '' %>><%= s.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <select name="company" class="form-control">
+            <option value="">All Companies</option>
+            <% companies.forEach(function(c) { %>
+              <option value="<%= c._id %>" <%= filters.company === String(c._id) ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </form>
+
+    <% if (!tests.length) { %>
+      <div class="empty-state"><i data-lucide="file-x"></i><h3>No tests found</h3><p>Try adjusting the filters.</p></div>
+    <% } else { %>
+      <div class="grid grid-3">
+        <% tests.forEach(function(t) { %>
+          <a href="/tests/<%= t.slug %>" class="card test-card">
+            <div class="flex items-center justify-between">
+              <span class="badge badge-primary"><%= t.type.replace(/_/g, ' ') %></span>
+              <% if (t.company) { %><span class="badge badge-neutral"><%= t.company.name %></span><% } %>
+            </div>
+            <h3><%= t.title %></h3>
+            <p class="desc"><%= t.description %></p>
+            <div class="test-meta">
+              <span><i data-lucide="clock"></i> <%= t.durationMinutes %> min</span>
+              <span><i data-lucide="list"></i> <%= t.questionCount %> Qs</span>
+              <% if (t.myBest) { %><span class="badge badge-success" style="margin-left:auto">Best: <%= t.myBest.score %> / <%= t.myBest.maxScore %></span><% } %>
+            </div>
+            <span class="btn btn-primary btn-sm" style="align-self:flex-start">Start Test</span>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

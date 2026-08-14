@@ -1,0 +1,106 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-public') %>
+<main>
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <div class="section">
+      <div class="page-head">
+        <h1>Search</h1>
+        <p>Search questions, tests, topics, companies and coding problems.</p>
+      </div>
+
+      <form action="/search" method="GET" class="card" style="margin-bottom:24px">
+        <div class="filter-bar">
+          <div class="form-group" style="flex:1">
+            <input type="text" class="form-control" name="q" placeholder="Search anything..." value="<%= results.q %>" autofocus>
+          </div>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </form>
+
+      <% if (results.q) { %>
+        <% if (!results.questions.length && !results.tests.length && !results.topics.length && !results.companies.length && !results.coding.length) { %>
+          <div class="empty-state">
+            <i data-lucide="search-x"></i>
+            <h3>No results for "<%= results.q %>"</h3>
+            <p>Try a different keyword, or browse <a href="/practice">Practice</a> or <a href="/tests">Tests</a>.</p>
+          </div>
+        <% } %>
+
+        <% if (results.tests.length) { %>
+          <h2 style="font-size:16px" class="mb-2">Tests</h2>
+          <div class="grid grid-3 mb-4">
+            <% results.tests.forEach(function(t) { %>
+              <a href="/tests/<%= t.slug %>" class="card test-card">
+                <span class="badge badge-primary"><%= t.type.replace(/_/g, ' ') %></span>
+                <h3><%= t.title %></h3>
+                <div class="test-meta"><span><i data-lucide="clock"></i> <%= t.durationMinutes %> min</span></div>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <% if (results.topics.length) { %>
+          <h2 style="font-size:16px" class="mb-2">Topics</h2>
+          <div class="grid grid-3 mb-4">
+            <% results.topics.forEach(function(t) { %>
+              <a href="/practice?subject=<%= t.subject.slug %>&topic=<%= t.slug %>" class="card card-body">
+                <h3 style="font-size:15px"><%= t.name %></h3>
+                <p class="small muted mt-1"><%= t.subject.name %></p>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <% if (results.companies.length) { %>
+          <h2 style="font-size:16px" class="mb-2">Companies</h2>
+          <div class="grid grid-3 mb-4">
+            <% results.companies.forEach(function(c) { %>
+              <a href="/companies/<%= c.slug %>" class="card company-card">
+                <span class="company-logo" style="background:<%= c.color %>"><%= c.shortName ? c.shortName.slice(0, 2).toUpperCase() : c.name.slice(0, 2).toUpperCase() %></span>
+                <div><h3 style="font-size:15px"><%= c.name %></h3></div>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <% if (results.coding.length) { %>
+          <h2 style="font-size:16px" class="mb-2">Coding Problems</h2>
+          <div class="grid grid-3 mb-4">
+            <% results.coding.forEach(function(p) { %>
+              <a href="/coding/<%= p.slug %>" class="card test-card">
+                <span class="badge badge-warning"><%= p.difficulty %></span>
+                <h3><%= p.title %></h3>
+                <div class="test-meta"><span><i data-lucide="tag"></i> <%= p.category %></span></div>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <% if (results.questions.length) { %>
+          <h2 style="font-size:16px" class="mb-2">Questions (<%= results.questions.length %>)</h2>
+          <div class="grid grid-2 mb-4">
+            <% results.questions.forEach(function(q) { %>
+              <div class="card card-body">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="badge badge-info"><%= q.subject ? q.subject.name : '' %></span>
+                  <span class="badge badge-neutral"><%= q.topic ? q.topic.name : '' %></span>
+                  <span class="badge badge-outline"><%= q.difficulty %></span>
+                </div>
+                <p style="font-size:14px"><%= q.text %></p>
+                <a href="/practice" class="btn-link btn-sm mt-2">Practice this section</a>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="empty-state">
+          <i data-lucide="search"></i>
+          <h3>Search across the platform</h3>
+          <p>Try "probability", "TCS", "arrays", "JOIN" or "percentages".</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>
