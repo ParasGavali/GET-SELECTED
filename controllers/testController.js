@@ -22,7 +22,10 @@ async function listTests(req, res, next) {
     const { type = '', subject = '', company = '' } = req.query;
     const filter = { isPublished: true };
     if (type) filter.type = type;
-    if (subject) filter.subject = subject;
+    if (subject) {
+      const subj = /^[0-9a-fA-F]{24}$/.test(subject) ? subject : await Subject.findOne({ slug: subject, isActive: true }).select('_id').lean();
+      if (subj) filter.subject = subj._id || subj;
+    }
     if (company) filter.company = company;
 
     const [tests, subjects, companies, types] = await Promise.all([

@@ -71,6 +71,7 @@ This creates 6 subjects, 55 topics, 170+ questions, 11 coding problems, 10 tests
 
 - Add `--reset` to wipe the collections first: `node seed/seed.js --reset`
 - Admin login: `admin@getselected.in` / `Admin@12345` (or your `ADMIN_EMAIL`/`ADMIN_PASSWORD`)
+- **Automatic on first boot**: the server seeds automatically when it starts if the database is empty (`server.js` checks the questions collection). On Render, a fresh empty database is populated on the first deploy with no manual step.
 
 ### 4. Run
 
@@ -108,7 +109,7 @@ node scripts/smoke-test.js
 3. Build command: `npm install`
 4. Start command: `npm start`
 5. Add the environment variables from `.env` (set `NODE_ENV=production`). Use a MongoDB Atlas cluster for `MONGODB_URI`.
-6. Deploy, then run the seed against the production database once (e.g. via the Render Shell: `node seed/seed.js`).
+6. Deploy. The database is seeded automatically on first boot if it's empty — no manual step required.
 
 ## Project Structure
 

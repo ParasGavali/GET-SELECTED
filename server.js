@@ -14,6 +14,8 @@ const MongoStore = require('connect-mongo');
 const rateLimit = require('express-rate-limit');
 
 const { connectDB } = require('./config/db');
+const { seed } = require('./seed/seed');
+const Question = require('./models/Question');
 const { flashMiddleware, trackActivity, loadUser } = require('./middleware/index');
 
 const app = express();
@@ -115,6 +117,14 @@ const PORT = process.env.PORT || 5000;
 
 async function start() {
   await connectDB();
+
+  const qCount = await Question.countDocuments({});
+  if (qCount === 0) {
+    console.log('[server] Database is empty - running seed...');
+    await seed({ disconnect: false });
+    console.log('[server] Seed finished.');
+  }
+
   app.listen(PORT, () => {
     console.log(`[server] GET SELECTED running on http://localhost:${PORT}`);
   });

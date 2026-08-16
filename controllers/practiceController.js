@@ -35,8 +35,18 @@ async function startSession(req, res, next) {
     const { subject, topic, difficulty, count } = req.query;
     const filter = { isActive: true };
 
-    if (subject) filter.subject = subject;
-    if (topic) filter.topic = topic;
+    const isObjectId = (v) => /^[0-9a-fA-F]{24}$/.test(v);
+
+    if (subject) {
+      const subj = isObjectId(subject) ? subject : await Subject.findOne({ slug: subject, isActive: true }).select('_id').lean();
+      if (!subj) return res.redirect('/practice');
+      filter.subject = subj._id || subj;
+    }
+    if (topic) {
+      const top = isObjectId(topic) ? topic : await Topic.findOne({ slug: topic, isActive: true }).select('_id').lean();
+      if (!top) return res.redirect('/practice');
+      filter.topic = top._id || top;
+    }
     if (difficulty) filter.difficulty = difficulty;
 
     // Weak topic questions only
