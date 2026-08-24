@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const College = require('../models/College');
 const TestAttempt = require('../models/TestAttempt');
 const QuestionAttempt = require('../models/QuestionAttempt');
 const CodeSubmission = require('../models/CodeSubmission');
@@ -7,11 +8,12 @@ const { getOverallRanking } = require('../services/rankingService');
 async function profile(req, res, next) {
   try {
     const user = req.user;
-    const [tests, questions, coding, ranking] = await Promise.all([
+    const [tests, questions, coding, ranking, colleges] = await Promise.all([
       TestAttempt.countDocuments({ user: user._id, status: { $in: ['submitted', 'auto_submitted', 'timed_out'] } }),
       QuestionAttempt.countDocuments({ user: user._id }),
       CodeSubmission.countDocuments({ user: user._id }),
       getOverallRanking(1000),
+      College.find({ status: 'active' }).sort({ order: 1 }).lean(),
     ]);
 
     const myIndex = ranking.findIndex((r) => String(r.user) === String(user._id));
@@ -20,7 +22,7 @@ async function profile(req, res, next) {
     const correct = await QuestionAttempt.countDocuments({ user: user._id, correct: true });
     const accuracy = questions ? Math.round((correct / questions) * 100) : 0;
 
-    res.render('student/profile', { title: 'My Profile - GET SELECTED', stats: { tests, questions, coding, accuracy, rank: myRank, streak: user.streak } });
+    res.render('student/profile', { title: 'My Profile - GET SELECTED', stats: { tests, questions, coding, accuracy, rank: myRank, streak: user.streak }, colleges });
   } catch (err) {
     next(err);
   }
@@ -28,14 +30,14 @@ async function profile(req, res, next) {
 
 async function updateProfile(req, res, next) {
   try {
-    const { name, college, branch, year } = req.body;
+    const { name, college, collegeId, branch, year } = req.body;
     if (!name || !name.trim()) {
       req.flash('error', 'Name is required.');
       return res.redirect('/profile');
     }
     await User.updateOne(
       { _id: req.user._id },
-      { name: name.trim(), college: (college || '').trim(), branch: (branch || '').trim(), year: year ? Number(year) : null }
+      { name: name.trim(), college: (college || '').trim(), collegeId: collegeId || null, branch: (branch || '').trim(), year: year ? Number(year) : null }
     );
     req.flash('success', 'Profile updated.');
     res.redirect('/profile');

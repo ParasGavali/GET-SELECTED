@@ -1,0 +1,129 @@
+=== GET SELECTED v2.1.0 — DATA CLEANUP & TAXONOMY REDESIGN REPORT ===
+Generated: 2026-08-21
+
+═══════════════════════════════════════════════════════
+1. CLASSIFICATION RESULTS
+═══════════════════════════════════════════════════════
+
+Source: questions_final.csv (11,266 rows)
+Output: questions_cleaned.csv (11,266 rows)
+
+Subject changes:  876 records reclassified
+Topic changes:   2,991 records reclassified
+Interview questions moved from Coding → Technical: 12
+
+Subject distribution (after cleaning):
+  4,152  Coding         (36.9%)
+  4,005  Technical      (35.5%)
+  1,391  Aptitude       (12.3%)
+  1,123  Verbal Ability  (9.9%)
+    576  Logical Reasoning (5.1%)
+     19  SQL             (0.2%)
+
+Type distribution:
+  7,114  MCQ
+  4,152  Coding
+
+General topic count: 714 (6.3% of total — down from ~24%)
+MCQ with missing options: 299 (will be skipped on import)
+
+═══════════════════════════════════════════════════════
+2. TOPIC TAXONOMY (Canonical)
+═══════════════════════════════════════════════════════
+
+Aptitude (12 topics):
+  Percentages, Profit & Loss, Ratio & Proportion, Time & Work,
+  Time Speed Distance, Probability, Permutation & Combination,
+  Number System, Averages, Simple & Compound Interest,
+  Data Interpretation, Arithmetic
+
+Logical Reasoning (11 topics):
+  Coding-Decoding, Blood Relations, Syllogisms, Series,
+  Odd One Out, Puzzles, Seating Arrangement, Direction Sense,
+  Analogy, Ranking, Statement & Conclusion
+
+Verbal Ability (11 topics):
+  Reading Comprehension, Grammar, Vocabulary, Sentence Correction,
+  Synonyms, Antonyms, Para Jumbles, Fill in the Blanks,
+  Idioms & Phrases, Error Detection, Sentence Completion
+
+Technical (13 topics):
+  DBMS, Operating Systems, Computer Networks, OOP,
+  Software Engineering, Computer Fundamentals, Data Structures,
+  DevOps, React, SAP, AI & ML, Programming Fundamentals,
+  Interview Prep
+
+Coding (12 topics):
+  Arrays, String, Linked Lists, Stack, Queue, Trees, Graphs,
+  Sorting, Searching, Recursion, Dynamic Programming, DSA
+
+SQL (7 topics):
+  SELECT & Basics, WHERE & Filters, JOINs,
+  GROUP BY & Aggregation, HAVING, Subqueries, Window Functions
+
+═══════════════════════════════════════════════════════
+3. POSITION ROADMAP REDESIGN
+═══════════════════════════════════════════════════════
+
+All 8 positions now have phased learning roadmaps:
+
+Software Engineer (4 phases, 10 modules):
+  Foundation → Core DSA → Technical → Interview Ready
+Backend Developer (4 phases, 9 modules):
+  Foundation → Core DSA → Systems → Interview Ready
+Frontend Developer (3 phases, 7 modules):
+  Foundation → Frontend Core → Interview Ready
+Full Stack Developer (4 phases, 8 modules):
+  Foundation → Core DSA → Specialization → Interview Ready
+Data Analyst (3 phases, 5 modules):
+  SQL Mastery → Quantitative → Analytical Reasoning
+Data Scientist (3 phases, 7 modules):
+  Foundation → Core Skills → Interview Ready
+AI/ML Engineer (3 phases, 6 modules):
+  Foundation → AI/ML Core → Interview Ready
+QA/Test Engineer (3 phases, 6 modules):
+  Foundation → SQL & Data → Interview Ready
+
+═══════════════════════════════════════════════════════
+4. FILES CREATED/MODIFIED
+═══════════════════════════════════════════════════════
+
+Created:
+  scripts/classify-questions.js    — keyword-based CSV classifier
+  seed/refresh-questions.js        — DB wipe + reimport from cleaned CSV
+  questions_cleaned.csv            — cleaned dataset (11,266 rows)
+
+Modified:
+  seed/data/subjects.js            — full canonical taxonomy (6 subjects, 65 topics)
+  config/positions.js              — phased roadmaps for all 8 positions
+  controllers/practiceController.js — Coding filtered out of practice subjects
+  controllers/positionController.js — phases support + optimized queries
+  views/student/position-detail.ejs — phased roadmap UI
+  package.json                     — added seed:questions:clean, classify scripts
+
+═══════════════════════════════════════════════════════
+5. HOW TO APPLY TO DATABASE
+═══════════════════════════════════════════════════════
+
+Step 1: Classify (already done):
+  node scripts/classify-questions.js
+
+Step 2: Import to database:
+  npm run seed:questions:clean
+
+This will:
+  - Delete all existing Questions and CodingProblems
+  - Reimport from questions_cleaned.csv
+  - Map subjects/topics to DB IDs
+  - Skip 299 MCQ rows with missing options
+
+═══════════════════════════════════════════════════════
+6. REMAINING "GENERAL" TOPICS (714 records, 6.3%)
+═══════════════════════════════════════════════════════
+
+  453  Verbal Ability  — grammar edge cases (sentence formation rules)
+  151  Logical Reasoning — trick questions, riddles, edge cases
+   80  Technical — mixed aptitude/interview questions
+   43  Coding — legitimate coding problems with aptitude content
+
+These are genuinely ambiguous and acceptable as "General".

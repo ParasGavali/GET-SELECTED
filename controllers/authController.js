@@ -1,29 +1,54 @@
 const User = require('../models/User');
+const College = require('../models/College');
 
 function renderAuth(req, res, view, extra = {}) {
   res.render(view, { title: extra.title || 'Authentication', next: req.query.next || '/dashboard', ...extra });
 }
 
-const signupPage = (req, res) => renderAuth(req, res, 'auth/signup', { title: 'Create your account' });
+const signupPage = async (req, res, next) => {
+  try {
+    const colleges = await College.find({ status: 'active' }).sort({ order: 1 }).lean();
+    renderAuth(req, res, 'auth/signup', { title: 'Create your account', colleges });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const loginPage = (req, res) => renderAuth(req, res, 'auth/login', { title: 'Log in to GET SELECTED' });
 
 async function signup(req, res, next) {
   try {
-    const { name, email, password, confirmPassword, college = '', branch = '', year = '' } = req.body;
+    const { name, email, password, confirmPassword, college = '', collegeId = '', branch = '', year = '' } = req.body;
 
-    if (!name || !name.trim()) return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Please enter your name.', values: req.body });
-    if (!/^\S+@\S+\.\S+$/.test(email || '')) return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Please enter a valid email address.', values: req.body });
-    if (!password || password.length < 8) return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Password must be at least 8 characters long.', values: req.body });
-    if (password !== confirmPassword) return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Passwords do not match.', values: req.body });
+    if (!name || !name.trim()) {
+      const colleges = await College.find({ status: 'active' }).sort({ order: 1 }).lean();
+      return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Please enter your name.', values: req.body, colleges });
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email || '')) {
+      const colleges = await College.find({ status: 'active' }).sort({ order: 1 }).lean();
+      return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Please enter a valid email address.', values: req.body, colleges });
+    }
+    if (!password || password.length < 8) {
+      const colleges = await College.find({ status: 'active' }).sort({ order: 1 }).lean();
+      return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Password must be at least 8 characters long.', values: req.body, colleges });
+    }
+    if (password !== confirmPassword) {
+      const colleges = await College.find({ status: 'active' }).sort({ order: 1 }).lean();
+      return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'Passwords do not match.', values: req.body, colleges });
+    }
 
     const existing = await User.findOne({ email: email.toLowerCase().trim() });
-    if (existing) return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'An account with this email already exists. Try logging in.', values: req.body });
+    if (existing) {
+      const colleges = await College.find({ status: 'active' }).sort({ order: 1 }).lean();
+      return renderAuth(req, res, 'auth/signup', { title: 'Create your account', error: 'An account with this email already exists. Try logging in.', values: req.body, colleges });
+    }
 
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
       college: college.trim(),
+      collegeId: collegeId || null,
       branch: branch.trim(),
       year: year ? Number(year) : null,
     });

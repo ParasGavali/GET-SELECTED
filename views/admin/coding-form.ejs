@@ -102,6 +102,43 @@
           <textarea name="solution" class="form-control" rows="6" placeholder="Reference solution shown to students after they attempt"><%= problem ? problem.solution : '' %></textarea>
         </div>
 
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 style="font-size:16px">Sample Test Cases</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="addSampleTC">+ Add Test Case</button>
+          </div>
+          <div id="sampleTCWrap" style="display:grid;gap:14px">
+            <% var sampleTCs = (problem && problem.testCases && problem.testCases.sample) || []; %>
+            <% (sampleTCs.length ? sampleTCs : [{input:'',output:'',explanation:''}]).forEach(function(tc) { %>
+              <div class="tc-box" style="display:grid;gap:8px;padding:14px;border:1px solid var(--border);border-radius:12px">
+                <div class="grid grid-2">
+                  <div class="form-group"><label>Input</label><textarea name="tc_input" class="form-control" rows="1"><%= tc.input || '' %></textarea></div>
+                  <div class="form-group"><label>Expected Output</label><textarea name="tc_output" class="form-control" rows="1"><%= tc.output || '' %></textarea></div>
+                </div>
+                <div class="form-group"><label>Explanation (optional)</label><textarea name="tc_explanation" class="form-control" rows="1"><%= tc.explanation || '' %></textarea></div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 style="font-size:16px">Hidden Test Cases</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="addHiddenTC">+ Add Test Case</button>
+          </div>
+          <div id="hiddenTCWrap" style="display:grid;gap:14px">
+            <% var hiddenTCs = (problem && problem.testCases && problem.testCases.hidden) || []; %>
+            <% (hiddenTCs.length ? hiddenTCs : [{input:'',output:''}]).forEach(function(tc) { %>
+              <div class="tc-box" style="display:grid;gap:8px;padding:14px;border:1px solid var(--border);border-radius:12px">
+                <div class="grid grid-2">
+                  <div class="form-group"><label>Input</label><textarea name="htc_input" class="form-control" rows="1"><%= tc.input || '' %></textarea></div>
+                  <div class="form-group"><label>Expected Output</label><textarea name="htc_output" class="form-control" rows="1"><%= tc.output || '' %></textarea></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
         <label class="checkbox-line">
           <input type="checkbox" name="isActive" <%= !problem || problem.isActive ? 'checked' : '' %>>
           <span>Active</span>
@@ -122,6 +159,22 @@
     var div = document.createElement('div');
     div.innerHTML = exampleTemplate;
     examplesWrap.appendChild(div.firstElementChild);
+  });
+
+  var sampleTCWrap = document.getElementById('sampleTCWrap');
+  var tcTemplate = sampleTCWrap.querySelector('.tc-box').outerHTML.replace(/value=".*?"/g, 'value=""').replace(/>(.*?)<\/textarea>/gs, '></textarea>');
+  document.getElementById('addSampleTC').addEventListener('click', function () {
+    var div = document.createElement('div');
+    div.innerHTML = tcTemplate;
+    sampleTCWrap.appendChild(div.firstElementChild);
+  });
+
+  var hiddenTCWrap = document.getElementById('hiddenTCWrap');
+  var htcTemplate = hiddenTCWrap.querySelector('.tc-box').outerHTML.replace(/value=".*?"/g, 'value=""').replace(/>(.*?)<\/textarea>/gs, '></textarea>');
+  document.getElementById('addHiddenTC').addEventListener('click', function () {
+    var div = document.createElement('div');
+    div.innerHTML = htcTemplate;
+    hiddenTCWrap.appendChild(div.firstElementChild);
   });
 </script>
 <%- include('../partials/footer') %>

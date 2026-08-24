@@ -1,0 +1,51 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head">
+      <h1>Career Positions</h1>
+      <p>Choose a career path and track your preparation progress for each role.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <% positions.forEach(function(pos) { %>
+        <div class="card position-card" style="border-top:3px solid <%= pos.color %>">
+          <div class="card-body">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="stat-icon" style="background:<%= pos.color %>15;color:<%= pos.color %>;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px">
+                <i data-lucide="<%= pos.icon %>" style="width:24px;height:24px"></i>
+              </span>
+              <div>
+                <h3 style="margin:0;font-size:16px"><%= pos.name %></h3>
+                <p class="small muted" style="margin:0"><%= pos.totalQuestions %> questions</p>
+              </div>
+            </div>
+            <p class="small" style="margin-bottom:16px"><%= pos.description %></p>
+
+            <% if (pos.totalQuestions > 0) { %>
+              <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="small muted">Progress</span>
+                  <span class="small fw-600"><%= pos.progress %>%</span>
+                </div>
+                <div class="progress"><div class="progress-bar" style="width:<%= pos.progress %>%"></div></div>
+              </div>
+              <div class="flex gap-2" style="font-size:13px">
+                <span class="badge badge-success"><%= pos.correct %> correct</span>
+                <span class="badge badge-info"><%= pos.attempted %> attempted</span>
+              </div>
+            <% } else { %>
+              <p class="small muted">Questions coming soon.</p>
+            <% } %>
+
+            <div class="mt-3">
+              <a href="/positions/<%= pos.slug %>" class="btn btn-primary btn-block btn-sm">View Roadmap</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

@@ -1,0 +1,133 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header-app') %>
+<main>
+  <div class="app-main">
+    <%- include('../partials/flash') %>
+    <div class="page-head flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="stat-icon" style="background:<%= position.color %>15;color:<%= position.color %>;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px">
+            <i data-lucide="<%= position.icon %>" style="width:24px;height:24px"></i>
+          </span>
+          <div>
+            <h1 style="margin:0"><%= position.name %></h1>
+            <p class="muted"><%= position.description %></p>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <a href="/positions" class="btn btn-outline btn-sm">All Positions</a>
+        <% if (overallStats.total > 0) { %>
+          <form action="/positions/<%= position.slug %>/mock" method="POST" style="display:inline">
+            <button type="submit" class="btn btn-primary btn-sm">Start Mock Test</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="grid grid-4" style="margin-bottom:24px">
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--primary-light);color:var(--primary)"><i data-lucide="target"></i></span>
+        <div><div class="stat-value"><%= overallStats.total %></div><div class="stat-label">Total Questions</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--success-light);color:var(--success)"><i data-lucide="check-circle"></i></span>
+        <div><div class="stat-value"><%= overallStats.attempted %></div><div class="stat-label">Attempted</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--info-light);color:var(--info)"><i data-lucide="award"></i></span>
+        <div><div class="stat-value"><%= overallStats.correct %></div><div class="stat-label">Correct</div></div>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-icon" style="background:var(--warning-light);color:var(--warning)"><i data-lucide="percent"></i></span>
+        <div><div class="stat-value"><%= overallStats.accuracy %>%</div><div class="stat-label">Accuracy</div></div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <div class="flex items-center justify-between mb-1">
+        <span class="fw-600">Overall Progress</span>
+        <span class="fw-600"><%= overallStats.progress %>%</span>
+      </div>
+      <div class="progress" style="height:10px"><div class="progress-bar" style="width:<%= overallStats.progress %>%"></div></div>
+    </div>
+
+    <!-- Phased Roadmap -->
+    <h2 style="margin:24px 0 16px">Learning Roadmap</h2>
+    <div style="display:grid;gap:24px">
+      <% phases.forEach(function(phase, pi) { %>
+        <div class="card" style="border-left:4px solid <%= position.color %>">
+          <div class="card-header" style="cursor:pointer;background:<%= position.color %>08">
+            <div class="flex items-center gap-3">
+              <span class="rank" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:<%= position.color %>20;color:<%= position.color %>"><%= pi + 1 %></span>
+              <div>
+                <h3 style="margin:0;font-size:16px"><%= phase.name %></h3>
+                <p class="small muted" style="margin:2px 0 0"><%= phase.description %></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right" style="min-width:80px">
+                <div class="small fw-600"><%= phase.progress %>%</div>
+                <div class="progress" style="height:6px;width:80px"><div class="progress-bar" style="width:<%= phase.progress %>%"></div></div>
+              </div>
+              <i data-lucide="chevron-down" style="width:20px;height:20px"></i>
+            </div>
+          </div>
+          <div class="card-body" style="display:none">
+            <div style="display:grid;gap:12px">
+              <% phase.modules.forEach(function(mod) { %>
+                <div style="padding:12px;border:1px solid var(--border);border-radius:8px">
+                  <div class="flex items-center justify-between mb-2">
+                    <div>
+                      <span class="fw-600" style="font-size:14px"><%= mod.name %></span>
+                      <span class="small muted" style="margin-left:8px"><%= mod.totalQuestions %> questions</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="text-right" style="min-width:60px">
+                        <div class="small fw-600"><%= mod.progress %>%</div>
+                      </div>
+                    </div>
+                  </div>
+                  <% if (mod.totalQuestions > 0) { %>
+                    <div class="progress" style="height:4px;margin-bottom:8px"><div class="progress-bar" style="width:<%= mod.progress %>%"></div></div>
+                  <% } %>
+                  <div class="flex items-center justify-between">
+                    <div class="flex gap-1" style="flex-wrap:wrap">
+                      <% mod.topics.slice(0, 4).forEach(function(t) { %>
+                        <a href="/practice?topic=<%= t.name %>&count=10" class="btn btn-outline btn-sm" style="font-size:12px;padding:2px 8px"><%= t.name %> (<%= t.total %>)</a>
+                      <% }) %>
+                      <% if (mod.topics.length > 4) { %>
+                        <span class="small muted" style="padding:2px 8px">+ <%= mod.topics.length - 4 %> more</span>
+                      <% } %>
+                    </div>
+                    <% if (mod.totalQuestions > 0) { %>
+                      <a href="/practice?subject=<%= mod.subjectCodes[0] ? mod.subjectCodes[0].toLowerCase() : '' %>&count=20" class="btn btn-primary btn-sm" style="font-size:12px">Practice</a>
+                    <% } %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<script>
+document.querySelectorAll('.card-header[style*="cursor"]').forEach(function(header) {
+  header.addEventListener('click', function() {
+    var body = header.nextElementSibling;
+    var icon = header.querySelector('[data-lucide="chevron-down"], [data-lucide="chevron-up"]');
+    if (body.style.display === 'none') {
+      body.style.display = '';
+      if (icon) { icon.setAttribute('data-lucide', 'chevron-up'); lucide.createIcons(); }
+    } else {
+      body.style.display = 'none';
+      if (icon) { icon.setAttribute('data-lucide', 'chevron-down'); lucide.createIcons(); }
+    }
+  });
+});
+</script>
+<%- include('../partials/footer') %>

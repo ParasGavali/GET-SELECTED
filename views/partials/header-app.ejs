@@ -12,6 +12,7 @@
         <a href="/dashboard" class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>">Dashboard</a>
         <a href="/practice" class="nav-link <%= currentPath.startsWith('/practice') ? 'active' : '' %>">Practice</a>
         <a href="/tests" class="nav-link <%= currentPath.startsWith('/tests') ? 'active' : '' %>">Tests</a>
+        <a href="/positions" class="nav-link <%= currentPath.startsWith('/positions') ? 'active' : '' %>">Positions</a>
         <a href="/companies" class="nav-link <%= currentPath.startsWith('/companies') ? 'active' : '' %>">Companies</a>
         <a href="/coding" class="nav-link <%= currentPath.startsWith('/coding') ? 'active' : '' %>">Coding</a>
         <a href="/daily" class="nav-link <%= currentPath === '/daily' ? 'active' : '' %>">Daily</a>
@@ -23,7 +24,7 @@
       <div class="navbar-actions">
         <% if (typeof user !== 'undefined' && user) { %>
           <a href="/profile" class="flex items-center gap-2 nav-link">
-            <span class="avatar" style="background:<%= user.avatarColor || '#4f46e5' %>"><%= user.name.charAt(0).toUpperCase() %></span>
+            <span class="avatar" style="background:<%= user.avatarColor || '#10b981' %>"><%= user.name.charAt(0).toUpperCase() %></span>
             <span style="display:none" class="d-name"><%= user.name.split(' ')[0] %></span>
           </a>
           <form action="/logout" method="POST">

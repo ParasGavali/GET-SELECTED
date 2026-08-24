@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  judge0:
+    image: judge0/judge0:latest
+    container_name: judge0
+    ports:
+      - "2358:2358"
+    environment:
+      - ENABLE_PRIVILEGED=true
+      - CONCURRENT_JOBS=5
+      - TOTAL_JOBS=10
+      - CLEANUP_WAIT=5
+    volumes:
+      - judge0-data:/judge0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2358/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  judge0-data:

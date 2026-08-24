@@ -8,6 +8,7 @@ const Test = require('../models/Test');
 const Company = require('../models/Company');
 const CodingProblem = require('../models/CodingProblem');
 const User = require('../models/User');
+const College = require('../models/College');
 const TestAttempt = require('../models/TestAttempt');
 
 const { subjects } = require('./data/subjects');
@@ -18,6 +19,7 @@ const { technical } = require('./data/technical');
 const { sql } = require('./data/sql');
 const { coding } = require('./data/coding');
 const { companies } = require('./data/companies');
+const { colleges } = require('./data/colleges');
 
 const collections = {
   Subject,
@@ -27,6 +29,7 @@ const collections = {
   Company,
   CodingProblem,
   User,
+  College,
   TestAttempt,
 };
 
@@ -71,6 +74,14 @@ async function seed({ reset: resetFlag, disconnect: shouldDisconnect } = {}) {
     companyMap.set(c.slug, company);
   }
   console.log(`[seed] Companies: ${companyMap.size}`);
+
+  // ---- Colleges ----
+  let collegeCount = 0;
+  for (const c of colleges) {
+    await College.findOneAndUpdate({ slug: c.slug }, c, { upsert: true, new: true });
+    collegeCount += 1;
+  }
+  console.log(`[seed] Colleges: ${collegeCount}`);
 
   // ---- Questions ----
   const allQ = [

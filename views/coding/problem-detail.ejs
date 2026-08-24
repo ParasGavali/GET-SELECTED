@@ -27,7 +27,7 @@
           <div class="card-body" style="font-size:14.5px;line-height:1.7">
             <p><%= problem.problemStatement %></p>
             <h3 style="font-size:15px" class="mt-3 mb-1">Examples</h3>
-            <% problem.examples.forEach(function(ex, i) { %>
+            <% (sampleTestCases || problem.examples || []).forEach(function(ex, i) { %>
               <div class="pre-block mb-2">
                 <div><b>Example <%= i + 1 %></b></div>
                 <div class="mt-1"><span class="muted">Input:</span> <%= ex.input %></div>
@@ -50,8 +50,25 @@
           <div class="card-header"><h2>Approach & Solution</h2></div>
           <div class="card-body" style="font-size:14.5px;line-height:1.7">
             <% if (problem.explanation) { %><p class="mb-2"><%= problem.explanation %></p><% } %>
-            <% if (problem.solution) { %>
+            <% var langs = Object.keys(solutions || {}); %>
+            <% if (langs.length && solutions[langs[0]].code) { %>
+              <div class="solution-tabs" style="margin-bottom:12px">
+                <% langs.forEach(function(lang, i) { %>
+                  <% if (solutions[lang].code) { %>
+                    <button class="btn btn-sm <%= i === 0 ? 'btn-primary' : 'btn-outline' %>" onclick="showSolution('<%= lang %>')"><%= lang.charAt(0).toUpperCase() + lang.slice(1) %></button>
+                  <% } %>
+                <% }) %>
+              </div>
+              <% langs.forEach(function(lang, i) { %>
+                <div class="solution-panel" id="sol-<%= lang %>" style="display:<%= i === 0 ? '' : 'none' %>">
+                  <% if (solutions[lang].approach) { %><p class="mb-2"><%= solutions[lang].approach %></p><% } %>
+                  <div class="code-block"><%= solutions[lang].code %></div>
+                </div>
+              <% }) %>
+            <% } else if (problem.solution) { %>
               <div class="code-block"><%= problem.solution %></div>
+            <% } else { %>
+              <p class="muted">No solutions available yet.</p>
             <% } %>
           </div>
         </div>
@@ -60,24 +77,38 @@
       <div>
         <% if (typeof user !== 'undefined' && user) { %>
           <div class="card" style="position:sticky;top:84px">
-            <div class="card-header"><h2>Your Solution</h2></div>
+            <div class="card-header"><h2>Your Code</h2></div>
             <div class="card-body">
-              <div class="alert alert-warning" style="font-size:13px"><b>Note:</b> In Phase 1, code execution is not yet available. Submissions are recorded for practice tracking and review.</div>
+              <% if (!judge0Configured) { %>
+                <div class="alert alert-warning" style="font-size:13px"><b>Note:</b> Code execution is not configured. Submissions are recorded for practice tracking.</div>
+              <% } %>
               <div class="form-group">
                 <label>Language</label>
                 <select id="langSelect" class="form-control">
                   <option value="javascript">JavaScript</option>
                   <option value="python">Python</option>
                   <option value="java">Java</option>
-                  <option value="c">C</option>
                   <option value="cpp">C++</option>
+                  <option value="c">C</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Code</label>
-                <textarea id="codeArea" class="code-area" placeholder="Write your solution here..."></textarea>
+                <textarea id="codeArea" class="code-area" placeholder="Write your solution here..." style="min-height:280px;font-family:monospace;font-size:13px;line-height:1.5"></textarea>
               </div>
-              <button type="button" class="btn btn-primary btn-block" id="codeSubmit">Submit Solution</button>
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-outline" id="runBtn" style="flex:1">Run</button>
+                <button type="button" class="btn btn-primary" id="submitBtn" style="flex:1">Submit</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Panel -->
+          <div class="card mt-4" id="outputPanel" style="display:none">
+            <div class="card-header"><h2>Output</h2></div>
+            <div class="card-body">
+              <div id="outputStatus" class="mb-2"></div>
+              <div id="outputResults"></div>
             </div>
           </div>
         <% } else { %>
@@ -93,16 +124,24 @@
 
         <% if (mySubmissions.length) { %>
           <div class="card mt-4">
-            <div class="card-header"><h2>My Submissions</h2></div>
+            <div class="card-header"><h2>My Submissions</h2><a href="/coding/my-attempts" class="btn-link btn-sm">All attempts</a></div>
             <div class="table-wrap">
               <table class="table">
-                <thead><tr><th>Date</th><th>Language</th><th>Status</th></tr></thead>
+                <thead><tr><th>Date</th><th>Language</th><th>Status</th><th>Result</th></tr></thead>
                 <tbody>
                   <% mySubmissions.forEach(function(s) { %>
                     <tr>
                       <td class="muted small"><%= formatDate(s.createdAt) %></td>
                       <td class="small"><%= s.language %></td>
-                      <td><span class="badge badge-info">Submitted</span></td>
+                      <td>
+                        <% if (s.status === 'accepted') { %><span class="badge badge-success">Accepted</span>
+                        <% } else if (s.status === 'wrong_answer') { %><span class="badge badge-danger">Wrong Answer</span>
+                        <% } else if (s.status === 'compile_error') { %><span class="badge badge-warning">Compile Error</span>
+                        <% } else if (s.status === 'runtime_error') { %><span class="badge badge-warning">Runtime Error</span>
+                        <% } else if (s.status === 'tle') { %><span class="badge badge-warning">TLE</span>
+                        <% } else { %><span class="badge badge-info"><%= s.status %></span><% } %>
+                      </td>
+                      <td class="small"><%= s.totalCases ? s.passedCases + '/' + s.totalCases : '—' %></td>
                     </tr>
                   <% }) %>
                 </tbody>
@@ -117,27 +156,94 @@
 
 <script>
 (function () {
-  var submitBtn = document.getElementById('codeSubmit');
-  if (!submitBtn) return;
-  submitBtn.addEventListener('click', function () {
-    var code = document.getElementById('codeArea').value.trim();
-    var lang = document.getElementById('langSelect').value;
-    if (!code) { GS.toast('Write some code before submitting.', 'error'); return; }
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-    fetch('/coding/<%= problem.slug %>/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: code, language: lang })
-    }).then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (d.error) { GS.toast(d.error, 'error'); submitBtn.disabled = false; submitBtn.textContent = 'Submit Solution'; return; }
-        GS.toast(d.message, 'success');
-        submitBtn.textContent = 'Submit Another';
-        submitBtn.disabled = false;
+  var runBtn = document.getElementById('runBtn');
+  var submitBtn = document.getElementById('submitBtn');
+  if (!runBtn || !submitBtn) return;
+
+  function getCode() {
+    return { code: document.getElementById('codeArea').value.trim(), language: document.getElementById('langSelect').value };
+  }
+
+  function showOutput(data) {
+    var panel = document.getElementById('outputPanel');
+    var status = document.getElementById('outputStatus');
+    var results = document.getElementById('outputResults');
+    panel.style.display = '';
+
+    if (data.status) {
+      var cls = data.status === 'accepted' ? 'badge-success' : data.status === 'pending' ? 'badge-info' : 'badge-danger';
+      status.innerHTML = '<span class="badge ' + cls + '" style="font-size:14px;padding:8px 16px">' + data.status.toUpperCase() +
+        (data.total ? ' — ' + data.passed + '/' + data.total + ' test cases passed' : '') + '</span>';
+    }
+
+    var html = '';
+    (data.results || []).forEach(function(r, i) {
+      html += '<div style="margin-bottom:12px;padding:12px;border-radius:8px;background:' + (r.passed ? 'var(--primary-light)' : '#fef2f2') + '">';
+      html += '<div class="flex items-center justify-between mb-1">';
+      html += '<span class="fw-600 small">Test Case ' + (i + 1) + '</span>';
+      html += '<span class="badge ' + (r.passed ? 'badge-success' : 'badge-danger') + '">' + (r.passed ? 'Passed' : 'Failed') + '</span>';
+      html += '</div>';
+      html += '<div class="small" style="font-family:monospace">';
+      html += '<div><b>Input:</b> <pre style="margin:4px 0;background:white;padding:6px;border-radius:4px;display:inline-block">' + escapeHtml(r.input) + '</pre></div>';
+      html += '<div><b>Expected:</b> <pre style="margin:4px 0;background:white;padding:6px;border-radius:4px;display:inline-block">' + escapeHtml(r.expected) + '</pre></div>';
+      html += '<div><b>Actual:</b> <pre style="margin:4px 0;background:white;padding:6px;border-radius:4px;display:inline-block">' + escapeHtml(r.actual || '') + '</pre></div>';
+      if (r.stderr) html += '<div class="text-danger"><b>Stderr:</b> ' + escapeHtml(r.stderr) + '</div>';
+      if (r.compile_output) html += '<div class="text-danger"><b>Compile:</b> ' + escapeHtml(r.compile_output) + '</div>';
+      if (r.time) html += '<div class="muted">Time: ' + r.time + 's</div>';
+      html += '</div></div>';
+    });
+    results.innerHTML = html || '<p class="muted">No results.</p>';
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(s));
+    return d.innerHTML;
+  }
+
+  function setLoading(btn, loading) {
+    btn.disabled = loading;
+    btn.dataset.origText = btn.dataset.origText || btn.textContent;
+    btn.textContent = loading ? 'Running...' : btn.dataset.origText;
+  }
+
+  runBtn.addEventListener('click', function () {
+    var d = getCode();
+    if (!d.code) { GS.toast('Write some code first.', 'error'); return; }
+    setLoading(runBtn, true);
+    fetch('/coding/<%= problem.slug %>/run', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d)
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+        setLoading(runBtn, false);
+        if (data.error) { GS.toast(data.error, 'error'); return; }
+        showOutput(data);
+        GS.toast('Run completed: ' + data.passed + '/' + data.total + ' passed', data.passed === data.total ? 'success' : 'error');
       })
-      .catch(function () { submitBtn.disabled = false; submitBtn.textContent = 'Submit Solution'; });
+      .catch(function() { setLoading(runBtn, false); GS.toast('Network error.', 'error'); });
+  });
+
+  submitBtn.addEventListener('click', function () {
+    var d = getCode();
+    if (!d.code) { GS.toast('Write some code first.', 'error'); return; }
+    setLoading(submitBtn, true);
+    fetch('/coding/<%= problem.slug %>/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d)
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+        setLoading(submitBtn, false);
+        if (data.error) { GS.toast(data.error, 'error'); return; }
+        showOutput(data);
+        GS.toast(data.status === 'accepted' ? 'All test cases passed!' : data.status.toUpperCase() + ': ' + data.passed + '/' + data.total + ' passed', data.status === 'accepted' ? 'success' : 'error');
+      })
+      .catch(function() { setLoading(submitBtn, false); GS.toast('Network error.', 'error'); });
   });
 })();
+
+function showSolution(lang) {
+  document.querySelectorAll('.solution-panel').forEach(function(p) { p.style.display = 'none'; });
+  document.getElementById('sol-' + lang).style.display = '';
+  document.querySelectorAll('.solution-tabs .btn').forEach(function(b) { b.className = b.textContent.toLowerCase() === lang ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline'; });
+}
 </script>
 <%- include('../partials/footer') %>

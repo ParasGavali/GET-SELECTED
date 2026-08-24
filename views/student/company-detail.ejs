@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div class="alert alert-info"><%= company.disclaimer %></div>
+    <% if (company.disclaimer) { %><div class="alert alert-info"><%= company.disclaimer %></div><% } %>
 
     <div class="chip-list mb-4">
       <span class="chip" style="font-size:13px">Focus areas:</span>
@@ -23,7 +23,7 @@
     <div class="grid grid-2 mb-4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
       <% focusAreas.forEach(function(f) { %>
         <a href="/practice?subject=<%= f.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-') %>&count=10" class="card card-body quick-link" style="display:flex;align-items:center;gap:12px">
-          <span class="ql-icon" style="background:#4f46e5"><i data-lucide="book-open"></i></span>
+          <span class="ql-icon" style="background:#10b981"><i data-lucide="book-open"></i></span>
           <div><b><%= f %> Practice</b><span>Start practicing now</span></div>
         </a>
       <% }) %>

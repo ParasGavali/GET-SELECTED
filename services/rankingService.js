@@ -1,4 +1,5 @@
 const TestAttempt = require('../models/TestAttempt');
+const User = require('../models/User');
 
 /**
  * Compute rank and percentile for a single attempt within its test.
@@ -34,10 +35,44 @@ async function getOverallRanking(limit = 100) {
     { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'u' } },
     { $unwind: '$u' },
     { $match: { 'u.isActive': true } },
+    { $project: { user: '$_id', name: '$u.name', collegeId: '$u.collegeId', points: 1, tests: 1, avgAccuracy: { $cond: [{ $gt: ['$tests', 0] }, { $divide: ['$accuracySum', '$tests'] }, 0] } } },
+    { $sort: { points: -1, avgAccuracy: -1 } },
+    { $limit: limit },
+  ]);
+}
+
+/** Ranking scoped to a specific college. */
+async function getCollegeRanking(collegeId, limit = 100) {
+  const userIds = (await User.find({ collegeId, isActive: true }).select('_id').lean()).map((u) => u._id);
+  if (!userIds.length) return [];
+
+  return TestAttempt.aggregate([
+    { $match: { user: { $in: userIds }, status: { $in: ['submitted', 'auto_submitted', 'timed_out'] } } },
+    { $group: { _id: '$user', points: { $sum: '$score' }, tests: { $sum: 1 }, accuracySum: { $sum: '$accuracy' } } },
+    { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'u' } },
+    { $unwind: '$u' },
+    { $match: { 'u.isActive': true } },
     { $project: { user: '$_id', name: '$u.name', points: 1, tests: 1, avgAccuracy: { $cond: [{ $gt: ['$tests', 0] }, { $divide: ['$accuracySum', '$tests'] }, 0] } } },
     { $sort: { points: -1, avgAccuracy: -1 } },
     { $limit: limit },
   ]);
+}
+
+/** Get user's college rank. */
+async function getUserCollegeRank(userId) {
+  const user = await User.findById(userId).select('collegeId').lean();
+  if (!user || !user.collegeId) return null;
+
+  const ranking = await getCollegeRanking(user.collegeId, 1000);
+  const myIndex = ranking.findIndex((r) => String(r.user) === String(userId));
+  if (myIndex < 0) return null;
+
+  return {
+    rank: myIndex + 1,
+    total: ranking.length,
+    points: ranking[myIndex].points,
+    percentile: ranking.length <= 1 ? 100 : Math.round(((ranking.length - (myIndex + 1)) / (ranking.length - 1)) * 100),
+  };
 }
 
 /** Ranking over a time window (days) for weekly/monthly leaderboards. */
@@ -64,4 +99,4 @@ async function getUserTestRank(userId, testId) {
   return attempt ? { rank: attempt.rank, percentile: attempt.percentile, attemptId: attempt._id, score: attempt.score } : null;
 }
 
-module.exports = { computeAttemptRanking, getOverallRanking, getPeriodRanking, getUserTestRank };
+module.exports = { computeAttemptRanking, getOverallRanking, getCollegeRanking, getUserCollegeRank, getPeriodRanking, getUserTestRank };

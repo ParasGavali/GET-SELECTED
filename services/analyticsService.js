@@ -45,11 +45,16 @@ async function getDashboardStats(userId) {
     }
   }
 
-  for (const at of attempts) {
+    for (const at of attempts) {
     const sections = at.sectionStats || [];
     for (const s of sections) {
-      const subject = topics.find((t) => t.name.toLowerCase() === s.section.toLowerCase());
-      // section names may equal subject or topic names; map via topicStats section data
+      const topic = topics.find((t) => t.name.toLowerCase() === s.section.toLowerCase());
+      if (topic && topic.subject) {
+        const key = String(topic.subject._id);
+        if (!subjectStats[key]) subjectStats[key] = { subjectId: topic.subject._id, total: 0, correct: 0, source: 'test' };
+        subjectStats[key].total += s.total || s.correct + (s.total - s.correct) || 0;
+        subjectStats[key].correct += s.correct || 0;
+      }
     }
     for (const ts of at.topicStats || []) {
       const t = topics.find((x) => x.name === ts.topic || x.slug === ts.topic);

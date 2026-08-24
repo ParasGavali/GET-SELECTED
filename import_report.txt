@@ -1,0 +1,124 @@
+======================================================================
+PLACEMENT QUESTION DATASET - IMPORT REPORT
+======================================================================
+
+Total raw records discovered:  9038
+Records extracted:             11855
+Records rejected:              204
+Duplicates removed:            614
+Final unique records:          11266
+
+----------------------------------------
+COUNT BY SUBJECT
+----------------------------------------
+  Technical                        4826
+  Coding                           4087
+  Verbal Ability                   1081
+  Aptitude                          698
+  Logical Reasoning                 548
+  SQL                                26
+
+----------------------------------------
+COUNT BY QUESTION TYPE
+----------------------------------------
+  MCQ                              6933
+  Coding                           4218
+  Numerical                         115
+
+----------------------------------------
+COUNT BY DIFFICULTY
+----------------------------------------
+  Medium                           5667
+  Hard                             2937
+  Easy                             2662
+
+----------------------------------------
+COUNT BY COMPANY
+----------------------------------------
+  TCS                              7269
+  Capgemini                        6908
+  Accenture                        6907
+  Wipro                            6907
+  Cognizant                        6884
+  Hexaware                         6872
+  HCLTech                          6868
+  Infosys                          6868
+  LTIMindtree                      6868
+  Mphasis                          6868
+  Tech Mahindra                    6868
+  Google                           2367
+  Amazon                           2057
+  Microsoft                        1446
+  Meta                             1445
+  Uber                              509
+  Apple                             478
+  Oracle                            395
+  Adobe                             302
+  Goldman Sachs                     296
+  Salesforce                        225
+  LinkedIn                          211
+  IBM                               179
+  SAP                               170
+  Zoho                              169
+  Visa                              164
+  Yandex                            138
+  PayPal                            137
+  Deloitte                          134
+  Flipkart                          111
+  PhonePe                           100
+  Netflix                            35
+
+----------------------------------------
+COUNT BY POSITION
+----------------------------------------
+  Software Engineer               11266
+  Full Stack Developer            10391
+  Backend Developer                9500
+  Frontend Developer               8596
+  Data Scientist                   3228
+  AI/ML Engineer                   3202
+  Data Analyst                     2376
+  QA/Test Engineer                 2327
+
+----------------------------------------
+COUNT BY SOURCE
+----------------------------------------
+  https://github.com/Rudra-Gupta15/Prepmaster                    5705
+  https://github.com/snehasishroy/leetcode-companywise-interview-questions   3398
+  https://github.com/Arjunpolen/TCS-NQT-PYQ-QUESTIONS            1135
+  https://github.com/anushka23g/Complete-Placement-Preparation    502
+  https://github.com/rajeevranjancom/Placement_paper              501
+  https://github.com/krishnadey30/LeetCode-Questions-CompanyWise     25
+
+----------------------------------------
+DATA QUALITY
+----------------------------------------
+  Records with missing explanation:   86
+  Records with missing difficulty:    0
+  Records requiring review:           32
+  PDF source files processed:         89
+
+----------------------------------------
+LICENSE / PROVENANCE SUMMARY
+----------------------------------------
+  Prepmaster:                       MIT License (Rudra-Gupta15)
+  TCS-NQT-PYQ-QUESTIONS:            MIT License (Arjunpolen)
+  leetcode-companywise-interview-questions: MIT (snehasishroy)
+  LeetCode-Questions-CompanyWise:   MIT (krishnadey30)
+  visor-leetcode:                   Not used (web app - no data)
+  Complete-Placement-Preparation:   MIT (anushka23g)
+  Placement_paper:                  MIT (rajeevranjancom)
+  Content sourced from public GitHub repositories for educational purposes.
+
+----------------------------------------
+SOURCE REPOSITORIES
+----------------------------------------
+  1. https://github.com/rajeevranjancom/Placement_paper
+  2. https://github.com/Rudra-Gupta15/Prepmaster
+  3. https://github.com/Arjunpolen/TCS-NQT-PYQ-QUESTIONS
+  4. https://github.com/snehasishroy/leetcode-companywise-interview-questions
+  5. https://github.com/krishnadey30/LeetCode-Questions-CompanyWise
+  6. https://github.com/hitarth-gg/visor-leetcode (web app - not data source)
+  7. https://github.com/anushka23g/Complete-Placement-Preparation
+
+======================================================================

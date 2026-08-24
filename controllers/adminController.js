@@ -192,7 +192,7 @@ async function adminQuestionToggle(req, res, next) {
   try {
     const q = await Question.findById(req.params.id);
     if (q) { q.isActive = !q.isActive; await q.save(); }
-  } catch (e) {}
+  } catch (e) { console.error('[admin] Question toggle error:', e.message); }
   res.redirect('/admin/questions');
 }
 
@@ -496,7 +496,7 @@ async function adminUserToggle(req, res, next) {
       user.isActive = !user.isActive;
       await user.save();
     }
-  } catch (e) {}
+  } catch (e) { console.error('[admin] User toggle error:', e.message); }
   res.redirect('/admin/users');
 }
 
@@ -541,6 +541,31 @@ function parseCodingPayload(body) {
     if (!input && !output && !explanation) continue;
     examples.push({ input, output, explanation });
   }
+
+  const sampleTCs = [];
+  const tcInputs = Array.isArray(body.tc_input) ? body.tc_input : body.tc_input != null ? [body.tc_input] : [];
+  const tcOutputs = Array.isArray(body.tc_output) ? body.tc_output : body.tc_output != null ? [body.tc_output] : [];
+  const tcExpls = Array.isArray(body.tc_explanation) ? body.tc_explanation : body.tc_explanation != null ? [body.tc_explanation] : [];
+  const tcMax = Math.max(tcInputs.length, tcOutputs.length, tcExpls.length);
+  for (let i = 0; i < tcMax; i++) {
+    const input = (tcInputs[i] != null ? tcInputs[i] : '').trim();
+    const output = (tcOutputs[i] != null ? tcOutputs[i] : '').trim();
+    const explanation = (tcExpls[i] != null ? tcExpls[i] : '').trim();
+    if (!input && !output) continue;
+    sampleTCs.push({ input, output, explanation });
+  }
+
+  const hiddenTCs = [];
+  const htcInputs = Array.isArray(body.htc_input) ? body.htc_input : body.htc_input != null ? [body.htc_input] : [];
+  const htcOutputs = Array.isArray(body.htc_output) ? body.htc_output : body.htc_output != null ? [body.htc_output] : [];
+  const htcMax = Math.max(htcInputs.length, htcOutputs.length);
+  for (let i = 0; i < htcMax; i++) {
+    const input = (htcInputs[i] != null ? htcInputs[i] : '').trim();
+    const output = (htcOutputs[i] != null ? htcOutputs[i] : '').trim();
+    if (!input && !output) continue;
+    hiddenTCs.push({ input, output });
+  }
+
   return {
     title: (body.title || '').trim(),
     slug: slugify(body.slug || body.title),
@@ -553,6 +578,7 @@ function parseCodingPayload(body) {
     concepts: (body.concepts || '').split(',').map((c) => c.trim()).filter(Boolean),
     explanation: (body.explanation || '').trim(),
     solution: (body.solution || '').trim(),
+    testCases: { sample: sampleTCs, hidden: hiddenTCs },
     companies: Array.isArray(body.companies) ? body.companies : [],
     isActive: body.isActive === 'on',
   };

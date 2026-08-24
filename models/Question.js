@@ -34,7 +34,22 @@ const questionSchema = new mongoose.Schema(
     estimatedTime: { type: Number, default: 60, min: 5, max: 3600 }, // seconds
     tags: { type: [String], default: [] },
     companies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Company', default: [] }],
+    positionTags: {
+      type: [String],
+      enum: [
+        'Software Engineer',
+        'Backend Developer',
+        'Frontend Developer',
+        'Full Stack Developer',
+        'Data Analyst',
+        'Data Scientist',
+        'AI/ML Engineer',
+        'QA/Test Engineer',
+      ],
+      default: [],
+    },
     source: { type: String, default: 'get-selected' },
+    sourceName: { type: String, default: '', trim: true },
     isActive: { type: Boolean, default: true, index: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     status: { type: String, enum: ['draft', 'published'], default: 'published' },

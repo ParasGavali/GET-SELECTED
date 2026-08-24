@@ -6,10 +6,33 @@ const Bookmark = require('../models/Bookmark');
 
 async function practiceSetup(req, res, next) {
   try {
-    const [subjects, topics] = await Promise.all([
+    const [allSubjects, topics, topicCounts] = await Promise.all([
       Subject.find({ isActive: true }).sort('order').lean(),
-      Topic.find({ isActive: true }).populate('subject', 'name slug').sort('order').lean(),
+      Topic.find({ isActive: true }).populate('subject', 'name slug code').sort('order').lean(),
+      Question.aggregate([
+        { $match: { isActive: true } },
+        { $group: { _id: '$topic', count: { $sum: 1 } } },
+      ]),
     ]);
+
+    const subjects = allSubjects.filter((s) => s.slug !== 'coding');
+
+    const countMap = new Map(topicCounts.map((tc) => [String(tc._id), tc.count]));
+
+    const topicsWithCounts = topics.map((t) => ({
+      ...t,
+      questionCount: countMap.get(String(t._id)) || 0,
+    }));
+
+    const subjectCounts = {};
+    for (const s of subjects) {
+      subjectCounts[s.slug] = topicsWithCounts
+        .filter((t) => String(t.subject?._id || t.subject) === String(s._id))
+        .reduce((sum, t) => sum + t.questionCount, 0);
+    }
+
+    const subtopics = await Question.distinct('subtopic', { isActive: true, subtopic: { $ne: '' } });
+    const subtopicList = subtopics.filter(Boolean).sort();
 
     const selectedSubject = req.query.subject || '';
     const selectedTopic = req.query.topic || '';
@@ -18,7 +41,9 @@ async function practiceSetup(req, res, next) {
     res.render('student/practice-setup', {
       title: 'Practice - GET SELECTED',
       subjects,
-      topics,
+      topics: topicsWithCounts,
+      subjectCounts,
+      subtopicList,
       selectedSubject,
       selectedTopic,
       selectedDifficulty,
@@ -32,7 +57,7 @@ async function practiceSetup(req, res, next) {
 /** Build a practice session: GET questions matching filters, render the session page. */
 async function startSession(req, res, next) {
   try {
-    const { subject, topic, difficulty, count } = req.query;
+    const { subject, topic, difficulty, count, subtopic } = req.query;
     const filter = { isActive: true };
 
     const isObjectId = (v) => /^[0-9a-fA-F]{24}$/.test(v);
@@ -48,6 +73,7 @@ async function startSession(req, res, next) {
       filter.topic = top._id || top;
     }
     if (difficulty) filter.difficulty = difficulty;
+    if (subtopic) filter.subtopic = subtopic;
 
     // Weak topic questions only
     if (req.query.weak === '1' && req.user) {

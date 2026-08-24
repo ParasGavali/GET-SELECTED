@@ -44,7 +44,12 @@
               </div>
               <div class="form-group">
                 <label>College</label>
-                <input type="text" name="college" class="form-control" value="<%= user.college %>">
+                <div class="college-select-wrap">
+                  <input type="text" id="collegeSearch" class="form-control" placeholder="Search your college..." autocomplete="off" value="<%= user.college || '' %>">
+                  <input type="hidden" id="collegeId" name="collegeId" value="<%= user.collegeId || '' %>">
+                  <input type="hidden" id="collegeName" name="college" value="<%= user.college || '' %>">
+                  <div id="collegeDropdown" class="college-dropdown" style="display:none"></div>
+                </div>
               </div>
               <div class="form-grid">
                 <div class="form-group">
@@ -90,4 +95,66 @@
     </div>
   </div>
 </main>
+<script>
+(function() {
+  var input = document.getElementById('collegeSearch');
+  if (!input) return;
+  var hiddenId = document.getElementById('collegeId');
+  var hiddenName = document.getElementById('collegeName');
+  var dropdown = document.getElementById('collegeDropdown');
+  var colleges = <%- JSON.stringify(typeof colleges !== 'undefined' ? colleges : []) %>;
+  var debounce = null;
+
+  input.addEventListener('focus', function() { filterColleges(input.value); });
+  input.addEventListener('input', function() {
+    hiddenId.value = '';
+    hiddenName.value = input.value;
+    clearTimeout(debounce);
+    debounce = setTimeout(function() { filterColleges(input.value); }, 150);
+  });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.college-select-wrap')) dropdown.style.display = 'none';
+  });
+
+  function filterColleges(query) {
+    var q = (query || '').toLowerCase().trim();
+    var matches = [];
+    if (q.length > 0) {
+      matches = colleges.filter(function(c) {
+        return c.officialName.toLowerCase().indexOf(q) !== -1 ||
+               c.shortName.toLowerCase().indexOf(q) !== -1 ||
+               c.city.toLowerCase().indexOf(q) !== -1 ||
+               (c.aliases && c.aliases.some(function(a) { return a.toLowerCase().indexOf(q) !== -1; }));
+      }).slice(0, 8);
+    }
+    if (q === '' || matches.length > 0) {
+      matches.push({ officialName: 'Other (Not Listed)', slug: 'other', shortName: 'Other', city: '', _isOther: true });
+    }
+    renderDropdown(matches);
+  }
+
+  function renderDropdown(items) {
+    if (!items.length) { dropdown.style.display = 'none'; return; }
+    dropdown.innerHTML = items.map(function(c) {
+      return '<div class="college-option" data-id="' + (c._isOther ? '' : c._id || c.slug) + '" data-name="' + (c._isOther ? '' : c.officialName) + '">' +
+        '<span class="college-option-name">' + c.officialName + '</span>' +
+        (c.city ? '<span class="college-option-city">' + c.city + '</span>' : '') +
+      '</div>';
+    }).join('');
+    dropdown.style.display = 'block';
+    dropdown.querySelectorAll('.college-option').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var id = el.getAttribute('data-id');
+        var name = el.getAttribute('data-name');
+        hiddenId.value = id;
+        hiddenName.value = name || input.value;
+        input.value = name || '';
+        dropdown.style.display = 'none';
+      });
+    });
+  }
+
+  filterColleges(input.value);
+})();
+</script>
 <%- include('../partials/footer') %>

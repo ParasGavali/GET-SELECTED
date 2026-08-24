@@ -1,13 +1,14 @@
 const { getDashboardStats, getAnalyticsData } = require('../services/analyticsService');
 const { generateAnalysis } = require('../services/aiService');
-const { getOverallRanking, getPeriodRanking } = require('../services/rankingService');
+const { getOverallRanking, getPeriodRanking, getCollegeRanking, getUserCollegeRank } = require('../services/rankingService');
 const TestAttempt = require('../models/TestAttempt');
 
 async function dashboard(req, res, next) {
   try {
-    const [stats, overallRank] = await Promise.all([
+    const [stats, overallRank, collegeRank] = await Promise.all([
       getDashboardStats(req.user._id),
       getOverallRanking(500),
+      getUserCollegeRank(req.user._id),
     ]);
 
     const myIndex = overallRank.findIndex((r) => String(r.user) === String(req.user._id));
@@ -22,7 +23,7 @@ async function dashboard(req, res, next) {
       };
     }
 
-    res.render('student/dashboard', { title: 'Dashboard - GET SELECTED', stats, ranking });
+    res.render('student/dashboard', { title: 'Dashboard - GET SELECTED', stats, ranking, collegeRank });
   } catch (err) {
     next(err);
   }
@@ -55,6 +56,13 @@ async function leaderboard(req, res, next) {
       getPeriodRanking(30, 100),
     ]);
 
+    let college = { list: [], me: null };
+    if (req.user.collegeId) {
+      const collegeList = await getCollegeRanking(req.user.collegeId, 100);
+      const idx = collegeList.findIndex((r) => String(r.user) === String(req.user._id));
+      college = { list: collegeList, me: idx >= 0 ? { ...collegeList[idx], rank: idx + 1 } : null };
+    }
+
     const attachMe = (list) => {
       const idx = list.findIndex((r) => String(r.user) === String(req.user._id));
       return { list, me: idx >= 0 ? { ...list[idx], rank: idx + 1 } : null };
@@ -65,6 +73,7 @@ async function leaderboard(req, res, next) {
       overall: attachMe(overall),
       weekly: attachMe(weekly),
       monthly: attachMe(monthly),
+      college,
     });
   } catch (err) {
     next(err);

@@ -92,6 +92,7 @@ app.use(require('./routes/practice'));
 app.use(require('./routes/tests'));
 app.use(require('./routes/companies'));
 app.use(require('./routes/coding'));
+app.use(require('./routes/positions'));
 app.use(require('./routes/leaderboard'));
 app.use(require('./routes/profile'));
 app.use(require('./routes/bookmarks'));

@@ -17,7 +17,7 @@
     <!-- Quick practice -->
     <div class="quick-links">
       <a href="/practice?subject=aptitude&count=10" class="quick-link">
-        <span class="ql-icon" style="background:#4f46e5"><i data-lucide="calculator"></i></span>
+        <span class="ql-icon" style="background:#10b981"><i data-lucide="calculator"></i></span>
         <div><b>Aptitude</b><span>Practice now</span></div>
       </a>
       <a href="/practice?subject=logical-reasoning&count=10" class="quick-link">
@@ -25,11 +25,11 @@
         <div><b>Reasoning</b><span>Practice now</span></div>
       </a>
       <a href="/practice?subject=technical&count=10" class="quick-link">
-        <span class="ql-icon" style="background:#0284c7"><i data-lucide="cpu"></i></span>
+        <span class="ql-icon" style="background:#0ea5e9"><i data-lucide="cpu"></i></span>
         <div><b>Technical</b><span>Practice now</span></div>
       </a>
       <a href="/coding" class="quick-link">
-        <span class="ql-icon" style="background:#d97706"><i data-lucide="code"></i></span>
+        <span class="ql-icon" style="background:#f59e0b"><i data-lucide="code"></i></span>
         <div><b>Coding</b><span>Solve problems</span></div>
       </a>
     </div>
@@ -106,6 +106,12 @@
             <% } else { %>
               <div class="empty-state"><i data-lucide="medal"></i><h3>No rank yet</h3><p>Complete tests to appear on the leaderboard.</p></div>
             <% } %>
+            <% if (typeof collegeRank !== 'undefined' && collegeRank) { %>
+              <hr style="margin:16px 0;border-color:var(--border)">
+              <p class="small muted mb-1">College Rank</p>
+              <div class="result-score" style="font-size:28px"><%= collegeRank.rank %><small style="font-size:14px"> / <%= collegeRank.total %></small></div>
+              <p class="small muted"><%= collegeRank.percentile %>th percentile</p>
+            <% } %>
           </div>
         </div>
 
@@ -159,15 +165,15 @@
         datasets: [{
           label: 'Score',
           data: trend.map(function (t) { return t.score; }),
-          borderColor: '#4f46e5',
-          backgroundColor: 'rgba(79,70,229,0.1)',
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.1)',
           fill: true,
           tension: 0.3,
           pointRadius: 4
         }, {
           label: 'Accuracy %',
           data: trend.map(function (t) { return t.accuracy; }),
-          borderColor: '#059669',
+          borderColor: '#0ea5e9',
           backgroundColor: 'transparent',
           tension: 0.3,
           pointRadius: 3,

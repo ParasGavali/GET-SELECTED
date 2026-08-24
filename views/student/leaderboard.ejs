@@ -10,6 +10,9 @@
 
     <div class="leaderboard-tabs">
       <button class="btn btn-primary btn-sm" data-tab="overall">Overall</button>
+      <% if (typeof college !== 'undefined' && college.list.length > 0) { %>
+        <button class="btn btn-outline btn-sm" data-tab="college">My College</button>
+      <% } %>
       <button class="btn btn-outline btn-sm" data-tab="monthly">Monthly</button>
       <button class="btn btn-outline btn-sm" data-tab="weekly">Weekly</button>
     </div>
@@ -31,7 +34,7 @@
                       <td class="rank <%= i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '' %>"><%= i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : i + 1 %></td>
                       <td>
                         <div class="flex items-center gap-2">
-                          <span class="avatar" style="width:32px;height:32px;font-size:13px;background:<%= r.name ? '#4f46e5' : '#64748b' %>"><%= r.name ? r.name.charAt(0).toUpperCase() : '?' %></span>
+                          <span class="avatar" style="width:32px;height:32px;font-size:13px;background:<%= r.name ? '#10b981' : '#64748b' %>"><%= r.name ? r.name.charAt(0).toUpperCase() : '?' %></span>
                           <span class="fw-600"><%= r.name %></span>
                           <% if (i === 0) { %><span class="badge badge-warning"><i data-lucide="crown" style="width:12px;height:12px"></i> Top</span><% } %>
                           <% if (spec[1].me && String(r.user) === String(spec[1].me.user)) { %><span class="badge badge-primary">You</span><% } %>
@@ -51,6 +54,44 @@
         </div>
       </div>
     <% }) %>
+
+    <% if (typeof college !== 'undefined') { %>
+      <div data-tab-panel="college" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <h2>My College Leaderboard</h2>
+            <span class="small muted">Rankings within your college.</span>
+          </div>
+          <div class="table-wrap">
+            <% if (college.list.length) { %>
+              <table class="table lb-table">
+                <thead><tr><th>Rank</th><th>Student</th><th class="text-right">Points</th><th class="text-right">Tests</th><th class="text-right">Avg Accuracy</th></tr></thead>
+                <tbody>
+                  <% college.list.slice(0, 50).forEach(function(r, i) { %>
+                    <tr class="<%= college.me && String(r.user) === String(college.me.user) ? 'lb-row-me' : '' %>">
+                      <td class="rank <%= i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '' %>"><%= i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : i + 1 %></td>
+                      <td>
+                        <div class="flex items-center gap-2">
+                          <span class="avatar" style="width:32px;height:32px;font-size:13px;background:<%= r.name ? '#10b981' : '#64748b' %>"><%= r.name ? r.name.charAt(0).toUpperCase() : '?' %></span>
+                          <span class="fw-600"><%= r.name %></span>
+                          <% if (i === 0) { %><span class="badge badge-warning"><i data-lucide="crown" style="width:12px;height:12px"></i> Top</span><% } %>
+                          <% if (college.me && String(r.user) === String(college.me.user)) { %><span class="badge badge-primary">You</span><% } %>
+                        </div>
+                      </td>
+                      <td class="text-right fw-700"><%= Math.round(r.points) %></td>
+                      <td class="text-right"><%= r.tests %></td>
+                      <td class="text-right"><%= Math.round(r.avgAccuracy || 0) %>%</td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <div class="empty-state"><i data-lucide="building"></i><h3>No college leaderboard data yet</h3><p>Be the first from your college to complete a test!</p></div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
   </div>
 </main>
 <%- include('../partials/footer') %>

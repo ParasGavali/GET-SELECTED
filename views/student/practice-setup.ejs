@@ -8,6 +8,7 @@
       <p>Choose what to practice. There are <%= totalQuestions %> questions available - everything is free.</p>
     </div>
 
+    <!-- Quick start form -->
     <form action="/practice/session" method="GET" class="card" style="margin-bottom:24px">
       <div class="filter-bar">
         <div class="form-group">
@@ -15,7 +16,7 @@
           <select name="subject" class="form-control" id="subjectSelect">
             <option value="">All Subjects</option>
             <% subjects.forEach(function(s) { %>
-              <option value="<%= s.slug %>" <%= selectedSubject === s.slug ? 'selected' : '' %>><%= s.name %></option>
+              <option value="<%= s.slug %>" <%= selectedSubject === s.slug ? 'selected' : '' %>><%= s.name %> (<%= subjectCounts[s.slug] || 0 %>)</option>
             <% }) %>
           </select>
         </div>
@@ -24,7 +25,7 @@
           <select name="topic" class="form-control" id="topicSelect">
             <option value="">All Topics</option>
             <% topics.forEach(function(t) { %>
-              <option value="<%= t.slug %>" data-subject="<%= t.subject.slug %>" <%= selectedTopic === t.slug ? 'selected' : '' %>><%= t.name %> (<%= t.subject.name %>)</option>
+              <option value="<%= t.slug %>" data-subject="<%= t.subject?.slug || '' %>" <%= selectedTopic === t.slug ? 'selected' : '' %>><%= t.name %> (<%= t.questionCount %>)</option>
             <% }) %>
           </select>
         </div>
@@ -65,23 +66,39 @@
       </div>
     </form>
 
-    <!-- Topic quick links -->
-    <div class="card">
-      <div class="card-header"><h2>Popular topics</h2></div>
-      <div class="card-body">
-        <div class="chip-list">
-          <% subjects.forEach(function(s) { %>
-            <span class="chip" style="font-size:13px"><%= s.name %></span>
-          <% }) %>
+    <!-- Subject Cards (Level 1) -->
+    <h2 style="margin-bottom:16px">Browse by Subject</h2>
+    <div class="grid grid-3" style="margin-bottom:32px">
+      <% subjects.forEach(function(s) { %>
+        <div class="card subject-expand-card" data-subject="<%= s.slug %>">
+          <div class="card-body cursor-pointer" onclick="toggleSubjectTopics(this)">
+            <div class="flex items-center gap-3">
+              <span class="stat-icon" style="background:<%= s.color %>15;color:<%= s.color %>"><i data-lucide="<%= s.icon %>" style="width:22px;height:22px"></i></span>
+              <div style="flex:1">
+                <h3 style="margin:0;font-size:15px"><%= s.name %></h3>
+                <p class="small muted" style="margin:0"><%= subjectCounts[s.slug] || 0 %> questions</p>
+              </div>
+              <i data-lucide="chevron-down" style="width:18px;height:18px" class="expand-icon"></i>
+            </div>
+          </div>
+          <div class="card-body subject-topics" style="display:none;border-top:1px solid var(--border);padding-top:12px">
+            <div style="display:grid;gap:6px">
+              <% topics.filter(function(t) { return t.subject?.slug === s.slug && t.questionCount > 0; }).forEach(function(t) { %>
+                <a href="/practice?subject=<%= s.slug %>&topic=<%= t.slug %>" class="flex items-center justify-between" style="padding:6px 10px;border-radius:6px;background:var(--surface);text-decoration:none;color:var(--text);font-size:14px">
+                  <span><%= t.name %></span>
+                  <span class="badge badge-info" style="font-size:11px"><%= t.questionCount %></span>
+                </a>
+              <% }) %>
+            </div>
+            <div class="mt-2 flex gap-2">
+              <a href="/practice?subject=<%= s.slug %>&count=20" class="btn btn-primary btn-sm">Practice All</a>
+              <a href="/practice?subject=<%= s.slug %>&difficulty=easy&count=10" class="btn btn-outline btn-sm">Easy</a>
+              <a href="/practice?subject=<%= s.slug %>&difficulty=medium&count=10" class="btn btn-outline btn-sm">Medium</a>
+              <a href="/practice?subject=<%= s.slug %>&difficulty=hard&count=10" class="btn btn-outline btn-sm">Hard</a>
+            </div>
+          </div>
         </div>
-        <div class="chip-list mt-2">
-          <% ['percentages', 'probability', 'profit-and-loss', 'time-and-work', 'time-speed-distance', 'coding-decoding', 'blood-relations', 'syllogisms', 'joins', 'dbms', 'operating-systems', 'arrays'].forEach(function(slug) {
-            var t = topics.find(function(x) { return x.slug === slug; });
-            if (t) { %>
-              <a href="/practice?subject=<%= t.subject.slug %>&topic=<%= t.slug %>" class="topic-pill"><%= t.name %></a>
-          <% } }) %>
-        </div>
-      </div>
+      <% }) %>
     </div>
   </div>
 </main>
@@ -104,5 +121,18 @@
   subject.addEventListener('change', filterTopics);
   filterTopics();
 })();
+
+function toggleSubjectTopics(card) {
+  var body = card.closest('.subject-expand-card');
+  var topics = body.querySelector('.subject-topics');
+  var icon = body.querySelector('.expand-icon');
+  if (topics.style.display === 'none') {
+    topics.style.display = '';
+    if (icon) { icon.setAttribute('data-lucide', 'chevron-up'); lucide.createIcons(); }
+  } else {
+    topics.style.display = 'none';
+    if (icon) { icon.setAttribute('data-lucide', 'chevron-down'); lucide.createIcons(); }
+  }
+}
 </script>
 <%- include('../partials/footer') %>
