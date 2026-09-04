@@ -16,6 +16,10 @@
         <a href="/coding" class="nav-link <%= currentPath === '/coding' ? 'active' : '' %>">Coding</a>
         <a href="/leaderboard" class="nav-link <%= currentPath === '/leaderboard' ? 'active' : '' %>">Leaderboard</a>
         <a href="/about" class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">About</a>
+        <button id="theme-toggle" class="btn btn-ghost btn-sm nav-link" aria-label="Toggle dark mode" style="padding: 8px 12px;">
+          <i data-lucide="sun" class="theme-icon-sun" style="width:16px;height:16px"></i>
+          <i data-lucide="moon" class="theme-icon-moon" style="width:16px;height:16px;display:none"></i>
+        </button>
         <a href="/login" class="nav-link">Login</a>
         <a href="/signup" class="btn btn-primary btn-sm" style="margin-left:6px">Sign Up Free</a>
       </nav>

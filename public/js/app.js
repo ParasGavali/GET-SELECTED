@@ -1,6 +1,38 @@
 (function () {
   'use strict';
 
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeIcons(theme);
+  }
+
+  function updateThemeIcons(theme) {
+    const sunIcons = document.querySelectorAll('.theme-icon-sun');
+    const moonIcons = document.querySelectorAll('.theme-icon-moon');
+    sunIcons.forEach(icon => {
+      icon.style.display = theme === 'dark' ? 'inline-block' : 'none';
+    });
+    moonIcons.forEach(icon => {
+      icon.style.display = theme === 'dark' ? 'none' : 'inline-block';
+    });
+  }
+
+  function initThemeToggle() {
+    const toggles = document.querySelectorAll('#theme-toggle');
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcons(newTheme);
+      });
+    });
+  }
+
   function initIcons() {
     if (window.lucide) {
       lucide.createIcons({ attrs: { 'stroke-width': 2 } });
@@ -98,6 +130,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    initThemeToggle();
     initIcons();
     initNav();
     initBookmarks();
