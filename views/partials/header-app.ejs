@@ -27,6 +27,10 @@
             <span class="avatar" style="background:<%= user.avatarColor || '#10b981' %>"><%= user.name.charAt(0).toUpperCase() %></span>
             <span style="display:none" class="d-name"><%= user.name.split(' ')[0] %></span>
           </a>
+          <button id="theme-toggle" class="btn btn-ghost btn-sm" aria-label="Toggle dark mode">
+            <i data-lucide="sun" class="theme-icon-sun" style="width:16px;height:16px"></i>
+            <i data-lucide="moon" class="theme-icon-moon" style="width:16px;height:16px;display:none"></i>
+          </button>
           <form action="/logout" method="POST">
             <button type="submit" class="btn btn-ghost btn-sm"><i data-lucide="log-out" style="width:15px;height:15px"></i><span class="hide-mobile">Logout</span></button>
           </form>

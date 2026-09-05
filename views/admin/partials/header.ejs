@@ -20,6 +20,10 @@
       </nav>
       <div class="navbar-actions">
         <a href="/dashboard" class="nav-link" title="View site"><i data-lucide="external-link" style="width:16px;height:16px"></i><span class="hide-mobile">View site</span></a>
+        <button id="theme-toggle" class="btn btn-ghost btn-sm" aria-label="Toggle dark mode">
+          <i data-lucide="sun" class="theme-icon-sun" style="width:16px;height:16px"></i>
+          <i data-lucide="moon" class="theme-icon-moon" style="width:16px;height:16px;display:none"></i>
+        </button>
         <form action="/logout" method="POST">
           <button type="submit" class="btn btn-ghost btn-sm"><i data-lucide="log-out" style="width:15px;height:15px"></i><span class="hide-mobile">Logout</span></button>
         </form>
